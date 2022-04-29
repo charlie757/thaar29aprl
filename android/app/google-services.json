@@ -1,0 +1,92 @@
+{
+  "project_info": {
+    "project_number": "840369298180",
+    "project_id": "thaar-transport-8aba3",
+    "storage_bucket": "thaar-transport-8aba3.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:840369298180:android:82d43a2b6454ab941d0e51",
+        "android_client_info": {
+          "package_name": "com.example.easyfinder"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "840369298180-4mgcn6euqhnrg9vhkkk14voroojn4nsc.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.easyfinder",
+            "certificate_hash": "4533fd539b2228adf2b3da387a6d2dabd42a326c"
+          }
+        },
+        {
+          "client_id": "840369298180-6il4vuecentd5cg2og9o0v25d4nlm185.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAjsM19DUq-LXWHS9xppyZF1KPyBR2vkfc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "840369298180-6il4vuecentd5cg2og9o0v25d4nlm185.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:840369298180:android:edb71b3ebb39c1531d0e51",
+        "android_client_info": {
+          "package_name": "thaar.app.thaartransport"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "840369298180-7rr8tl4kto97tt31gabmnf2eqvp82sj8.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "thaar.app.thaartransport",
+            "certificate_hash": "4533fd539b2228adf2b3da387a6d2dabd42a326c"
+          }
+        },
+        {
+          "client_id": "840369298180-us3q609mdbvb61uca5g63sgijjv2c81s.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "thaar.app.thaartransport",
+            "certificate_hash": "8107ac3d6582a347a39f70aa5700d774f8471065"
+          }
+        },
+        {
+          "client_id": "840369298180-6il4vuecentd5cg2og9o0v25d4nlm185.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAjsM19DUq-LXWHS9xppyZF1KPyBR2vkfc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "840369298180-6il4vuecentd5cg2og9o0v25d4nlm185.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
