@@ -29,9 +29,11 @@ class SlideItem extends StatelessWidget {
         ),
         Text(
           slideList[index].title,
-          style: TextStyle(
-            fontSize: 22,
-            color: Theme.of(context).primaryColor,
+          style: const TextStyle(
+            fontSize: 21,
+            fontWeight: FontWeight.w500,
+            fontStyle: FontStyle.normal,
+            color: Colors.black,
           ),
         ),
         const SizedBox(
@@ -40,6 +42,11 @@ class SlideItem extends StatelessWidget {
         Text(
           slideList[index].description,
           textAlign: TextAlign.center,
+          style: const TextStyle(
+            color: Colors.black,
+            fontSize: 16,
+            fontWeight: FontWeight.w300,
+          ),
         ),
       ],
     );

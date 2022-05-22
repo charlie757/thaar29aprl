@@ -9,11 +9,11 @@ class Validations {
   }
 
   static String? validateNumber(value, [bool isRequried = true]) {
-    if (value.isEmpty && isRequried) return 'number is required.';
+    if (value.isEmpty && isRequried) return 'lorry number is required.';
 
     final RegExp nameExp = RegExp(
         r'(([A-Za-z]){2,3}(|-)(?:[0-9]){1,2}(|-)(?:[A-Za-z]){2}(|-)([0-9]){1,4})|(([A-Za-z]){2,3}(|-)([0-9]){1,4})$');
-    if (!nameExp.hasMatch(value) && isRequried) return 'Invalid Number';
+    if (!nameExp.hasMatch(value) && isRequried) return 'Enter lorry number';
     return null;
   }
 

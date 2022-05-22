@@ -6,16 +6,11 @@ import 'package:cool_alert/cool_alert.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
-
-import 'package:jiffy/jiffy.dart';
 import 'package:line_icons/line_icons.dart';
-import 'package:provider/provider.dart';
 import 'package:rflutter_alert/rflutter_alert.dart';
-import 'package:thaartransport/NEW/currentuserprovider.dart';
 import 'package:thaartransport/NEW/truckpostuser/truckhomepage.dart';
 import 'package:thaartransport/addnewload/postmodal.dart';
 import 'package:thaartransport/modal/truckmodal.dart';
-import 'package:thaartransport/modal/usermodal.dart';
 import 'package:thaartransport/screens/myorders/mybidorder.dart';
 import 'package:thaartransport/services/userservice.dart';
 import 'package:thaartransport/utils/constants.dart';
@@ -23,8 +18,6 @@ import 'package:thaartransport/utils/controllers.dart';
 import 'package:thaartransport/utils/firebase.dart';
 import 'package:thaartransport/widget/cached_image.dart';
 import 'package:thaartransport/widget/indicatiors.dart';
-//import 'package:flutter_icons/flutter_icons.dart';
-import 'package:timeago/timeago.dart' as timeago;
 
 class LoadData extends StatefulWidget {
   final PostModal posts;
@@ -90,6 +83,7 @@ class _LoadDataState extends State<LoadData> {
         username = value.get('username');
         companyName = value.get('companyname');
         userdp = value.get('photourl');
+        firebaseToken = value.get('firebasetoken');
       });
     });
   }
@@ -110,9 +104,43 @@ class _LoadDataState extends State<LoadData> {
   String username = '';
   String companyName = '';
   String userdp = '';
+  String firebaseToken = '';
+
+  int differenceinmin = 0;
+  int checkdifference = 0;
+  int differenceinsec = 0;
+
+  timerFunction() {
+    final currenttime = DateTime.now();
+    final backendtime = DateTime.parse(widget.posts.postexpiretime.toString());
+    final differencehours = backendtime.difference(currenttime).inHours;
+    checkdifference = differencehours >= 1 ? differencehours : 1;
+
+    differenceinmin = backendtime.difference(currenttime).inMinutes;
+    final checkdifferenceinmin =
+        differenceinmin >= 60 ? checkdifference : differenceinmin;
+
+    differenceinsec = backendtime.difference(currenttime).inSeconds;
+    final checkdifferenceinsec = differenceinsec >= 1
+        ? differenceinmin
+        : differenceinsec < 1
+            ? 0
+            : differenceinsec;
+
+    checkdifferenceinsec == 1 ||
+            checkdifferenceinsec <= 1 ||
+            checkdifferenceinsec == 0
+        ? postRef.doc(widget.posts.postid).update({'loadstatus': 'Expired'})
+        : null;
+
+    print("expiretime ${widget.posts.postid}");
+    print("checkdifferenceinsec $checkdifferenceinsec");
+    print("checkdifference $checkdifference");
+  }
 
   @override
   Widget build(BuildContext context) {
+    timerFunction();
     return Column(
       children: [
         LoadPosts(
@@ -149,12 +177,13 @@ class _LoadDataState extends State<LoadData> {
     var ref = posts.postid;
     double height = MediaQuery.of(context).size.height;
     double width = MediaQuery.of(context).size.width;
+
     return InkWell(
       onTap: () async {
         print(isTruck);
         print(havebidCount.length);
         isTruck == false
-            ? alertDialog(context)
+            ? addtruck(context)
             : biddocs.length >= 5
                 ? totalAmount < 500
                     ? addMoneyAlert(context)
@@ -194,54 +223,48 @@ class _LoadDataState extends State<LoadData> {
                       ],
                     ),
                     SizedBox(height: height * 0.02),
-                    Container(
-                      color: Color.fromARGB(31, 146, 131, 131),
-                      height: 35,
-                      alignment: Alignment.center,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Container(
-                            child: Row(
-                              children: [
-                                Text("From:"),
-                                SizedBox(
-                                  width: 15,
-                                ),
-                                Text(
-                                  source.split(',')[0],
-                                  style: TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w500),
-                                )
-                              ],
-                            ),
-                          ),
-                          Container(
-                            child: Row(
-                              children: [
-                                Text("To:"),
-                                SizedBox(
-                                  width: 15,
-                                ),
-                                Text(
-                                  destination.split(',')[0],
-                                  style: TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w500),
-                                )
-                              ],
-                            ),
-                          )
-                        ],
-                      ),
+                    Row(
+                      // mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Icon(
+                          Icons.circle,
+                          size: 13,
+                          color: Colors.green,
+                        ),
+                        const SizedBox(
+                          width: 15,
+                        ),
+                        Text(
+                          source,
+                          style: const TextStyle(fontSize: 17),
+                        )
+                      ],
+                    ),
+                    const SizedBox(
+                      height: 7,
+                    ),
+                    Row(
+                      children: [
+                        const Icon(
+                          Icons.circle,
+                          size: 13,
+                          color: Colors.blue,
+                        ),
+                        const SizedBox(
+                          width: 15,
+                        ),
+                        Text(
+                          destination,
+                          style: const TextStyle(fontSize: 17),
+                        )
+                      ],
                     ),
                     Divider(),
                     Row(
                       children: [
                         Expanded(
                           child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
+                            // mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Image.asset(
                                 'assets/images/product.png',
@@ -253,14 +276,15 @@ class _LoadDataState extends State<LoadData> {
                               ),
                               Text(
                                 material,
-                                style: TextStyle(fontWeight: FontWeight.bold),
+                                style: TextStyle(
+                                    fontWeight: FontWeight.bold, fontSize: 16),
                               )
                             ],
                           ),
                         ),
                         Expanded(
                           child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
+                            // mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Image.asset(
                                 'assets/images/quantity.png',
@@ -272,7 +296,8 @@ class _LoadDataState extends State<LoadData> {
                               ),
                               Text(
                                 "$quantity Tons",
-                                style: TextStyle(fontWeight: FontWeight.bold),
+                                style: TextStyle(
+                                    fontWeight: FontWeight.bold, fontSize: 16),
                               )
                             ],
                           ),
@@ -280,9 +305,6 @@ class _LoadDataState extends State<LoadData> {
                       ],
                     ),
                     Divider(),
-                    SizedBox(
-                      height: height * 0.01,
-                    ),
                     Row(
                       children: [
                         Image.asset(
@@ -291,7 +313,8 @@ class _LoadDataState extends State<LoadData> {
                           width: 20,
                         ),
                         Text(expectedPrice,
-                            style: GoogleFonts.lato(fontSize: 18)),
+                            style: GoogleFonts.lato(
+                                fontSize: 18, fontWeight: FontWeight.w700)),
                         Text(priceunit == 'tonne' ? " per" : '',
                             style: const TextStyle(fontSize: 18)),
                         SizedBox(
@@ -303,7 +326,57 @@ class _LoadDataState extends State<LoadData> {
                   ],
                 ),
               ),
-              SizedBox(height: height * 0.01),
+              SizedBox(height: 2),
+              Padding(
+                padding: const EdgeInsets.only(right: 10),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    Text.rich(TextSpan(
+                      text: "Expire After:  ",
+                      style: const TextStyle(
+                          fontWeight: FontWeight.w400, fontSize: 16),
+                      children: [
+                        TextSpan(
+                            text: differenceinmin >= 60
+                                ? checkdifference.toString()
+                                : differenceinsec >= 1
+                                    ? differenceinmin.toString()
+                                    : differenceinsec <= 1
+                                        ? '0'
+                                        : differenceinsec.toString(),
+                            style: TextStyle(
+                                fontWeight: FontWeight.w600,
+                                fontSize: 17,
+                                color: differenceinmin >= 60
+                                    ? Colors.green.shade900
+                                    : differenceinsec >= 1
+                                        ? Colors.orange
+                                        : Colors.orange),
+                            children: [
+                              TextSpan(
+                                  text: differenceinmin >= 60
+                                      ? " Hours"
+                                      : differenceinsec >= 1
+                                          ? " Min"
+                                          : " Sec",
+                                  style: TextStyle(
+                                      fontWeight: FontWeight.w400,
+                                      fontSize: 15,
+                                      color: differenceinmin >= 60
+                                          ? Colors.green.shade900
+                                          : differenceinsec >= 1
+                                              ? Colors.orange
+                                              : Colors.orange))
+                            ]),
+                      ],
+                    ))
+                  ],
+                ),
+              ),
+              SizedBox(
+                height: 10,
+              ),
               Padding(
                   padding: EdgeInsets.only(left: 10, right: 10),
                   child: Card(
@@ -317,19 +390,30 @@ class _LoadDataState extends State<LoadData> {
                                   child: Container(
                                 child: Row(
                                   children: [
-                                    userdp.isNotEmpty
-                                        ? CircleAvatar(
-                                            radius: 20,
-                                            backgroundColor:
-                                                const Color(0xff4D4D4D),
-                                            backgroundImage:
-                                                CachedNetworkImageProvider(
-                                                    userdp),
-                                          )
-                                        : const CircleAvatar(
-                                            radius: 20.0,
-                                            backgroundColor: Color(0xff4D4D4D),
-                                          ),
+                                    ClipRRect(
+                                      borderRadius: BorderRadius.all(
+                                          Radius.circular(100.0)),
+                                      child: CachedNetworkImage(
+                                          height: 50,
+                                          width: 50,
+                                          imageUrl: userdp.toString(),
+                                          placeholder: (context, url) =>
+                                              Transform.scale(
+                                                scale: 0.4,
+                                                child:
+                                                    CircularProgressIndicator(
+                                                  color: Constants.kYellowColor,
+                                                  strokeWidth: 3,
+                                                ),
+                                              ),
+                                          errorWidget: (context, url, error) =>
+                                              Container(
+                                                  height: 40,
+                                                  width: 40,
+                                                  child: Image.asset(
+                                                      'assets/images/account_profile.png')),
+                                          fit: BoxFit.cover),
+                                    ),
                                     SizedBox(
                                       width: 10,
                                     ),
@@ -357,7 +441,7 @@ class _LoadDataState extends State<LoadData> {
                                         color: Colors.black,
                                         onPressed: () {
                                           isTruck == false
-                                              ? alertDialog(context)
+                                              ? addtruck(context)
                                               : biddocs.length >= 5
                                                   ? totalAmount < 500
                                                       ? addMoneyAlert(context)
@@ -510,7 +594,7 @@ class _LoadDataState extends State<LoadData> {
                                 bidSheet(context, post, truckModal);
                               },
                               child: Card(
-                                elevation: 2,
+                                elevation: 0,
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
@@ -828,7 +912,7 @@ class _LoadDataState extends State<LoadData> {
                   ),
                   SizedBox(height: height * 0.02),
                   Card(
-                      elevation: 8,
+                      elevation: 0,
                       child: Container(
                         margin: EdgeInsets.all(15),
                         padding: EdgeInsets.only(bottom: 5),
@@ -877,15 +961,15 @@ class _LoadDataState extends State<LoadData> {
                             SizedBox(
                               height: height * 0.02,
                             ),
-                            TextFormField(
-                              controller: remakrsController,
-                              readOnly: readOnly,
-                              maxLines: 3,
-                              decoration: const InputDecoration(
-                                  hintText: "Enter your remarks",
-                                  border: OutlineInputBorder(),
-                                  focusedBorder: OutlineInputBorder()),
-                            )
+                            // TextFormField(
+                            //   controller: remakrsController,
+                            //   readOnly: readOnly,
+                            //   maxLines: 3,
+                            //   decoration: const InputDecoration(
+                            //       hintText: "Enter your remarks",
+                            //       border: OutlineInputBorder(),
+                            //       focusedBorder: OutlineInputBorder()),
+                            // )
                           ],
                         ),
                       )),
@@ -899,89 +983,11 @@ class _LoadDataState extends State<LoadData> {
                           if (!form.validate()) {
                             validate = true;
                           } else {
-                            try {
-                              state(() {});
-                              if (this.mounted) {
-                                setState(() {
-                                  isLoading = true;
-                                  readOnly = true;
-                                });
-                              }
-                              var id = bidRef.doc().id;
-                              await bidRef.doc(id).set({
-                                'rate': rateController.text,
-                                'remarks': remakrsController.text,
-                                'bidtime': Jiffy(DateTime.now()).yMMMMEEEEdjm,
-                                'biduserid': UserService().currentUid(),
-                                'bidresponse': "",
-                                'loadid': posts.postid,
-                                'loadpostid': posts.ownerId,
-                                'negotiateprice': "",
-                                'truckownerid': UserService().currentUid(),
-                                'truckid': truckModal.id,
-                                'id': id,
-                                'loaderimage': false,
-                                'truckimage': false,
-                                'bid': true,
-                                'transpmt': '',
-                                'shipperpmt': '',
-                                'bidid': UserService().currentUid(),
-                                "truckposttime": truckModal.truckposttime,
-                              }).catchError((e) {
-                                print(e);
-                              });
-
-                              await postRef.doc(posts.postid).update({
-                                'loadorderstatus': 'InProgress',
-                              });
-                              await bidRef
-                                  .doc(id)
-                                  .collection('bidmessage')
-                                  .doc()
-                                  .set({
-                                'rate': rateController.text,
-                                'bidtime': FieldValue.serverTimestamp(),
-                                'biduserid': UserService().currentUid(),
-                                'type': "text",
-                              });
-
-                              state(() {});
-                              if (mounted) {
-                                setState(() {
-                                  isLoading = false;
-                                  readOnly = false;
-                                });
-                              }
-                              await CoolAlert.show(
-                                  context: context,
-                                  type: CoolAlertType.loading,
-                                  text:
-                                      'Your bid has been placed successfully, Please wait for the transporter to respond',
-                                  lottieAsset: 'assets/1708-success.json',
-                                  autoCloseDuration: Duration(seconds: 2),
-                                  animType: CoolAlertAnimType.slideInUp,
-                                  title: 'Bidding Successfully');
-
-                              Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) => MyBidOrder()));
-                              rateController.clear();
-                              remakrsController.clear();
-                              state(() {});
-                              setState(() {
-                                isLoading = false;
-                              });
-                            } catch (e) {
-                              print(e);
-                            }
-                            state(() {});
-                            if (mounted) {
-                              setState(() {
-                                isLoading = false;
-                                readOnly = false;
-                              });
-                            }
+                            biddocs.length >= 5
+                                ? totalAmount < 500
+                                    ? addMoneyAlert(context)
+                                    : callbidFuncton(posts, truckModal)
+                                : callbidFuncton(posts, truckModal);
                           }
                         },
                         child: Container(
@@ -1003,34 +1009,261 @@ class _LoadDataState extends State<LoadData> {
     });
   }
 
-  addMoneyAlert(BuildContext context) {
-    Alert(
+  callbidFuncton(PostModal posts, TruckModal truckModal) async {
+    try {
+      // state(() {});
+      if (this.mounted) {
+        setState(() {
+          isLoading = true;
+          readOnly = true;
+        });
+      }
+
+      var id = bidRef.doc().id;
+      await bidRef.doc(id).set({
+        'rate': rateController.text,
+        'bidtime': FieldValue.serverTimestamp(),
+        'biduserid': UserService().currentUid(),
+        'bidresponse': "",
+        'notificationuser': UserService().currentUid(),
+        'loadid': posts.postid,
+        'loadpostid': posts.ownerId,
+        'negotiateprice': "",
+        'truckownerid': UserService().currentUid(),
+        'truckid': truckModal.id,
+        'id': id,
+        'loaderimage': false,
+        'truckimage': false,
+        'bid': true,
+        'transpmt': '',
+        'shipperpmt': '',
+        'postuserfeedback': '',
+        'bidid': posts.ownerId,
+        "truckposttime": truckModal.truckposttime,
+      }).catchError((e) {
+        print(e);
+      });
+
+      // await postRef.doc(posts.postid).update({
+      //   'loadorderstatus': 'InProgress',
+      // });
+      // state(() {});
+      if (mounted) {
+        setState(() {
+          isLoading = false;
+          readOnly = false;
+        });
+      }
+      await CoolAlert.show(
+          context: context,
+          type: CoolAlertType.loading,
+          text:
+              'Your bid has been placed successfully, Please wait for the transporter to respond',
+          lottieAsset: 'assets/1708-success.json',
+          autoCloseDuration: Duration(seconds: 2),
+          animType: CoolAlertAnimType.slideInUp,
+          title: 'Bidding Successfully');
+
+      Navigator.push(
+          context, MaterialPageRoute(builder: (context) => MyBidOrder()));
+      rateController.clear();
+      remakrsController.clear();
+      // state(() {});
+      setState(() {
+        isLoading = false;
+      });
+    } catch (e) {
+      print(e);
+    }
+    // state(() {});
+    if (mounted) {
+      setState(() {
+        isLoading = false;
+        readOnly = false;
+      });
+    }
+  }
+
+  addMoneyAlert(
+    BuildContext context,
+  ) {
+    showGeneralDialog(
       context: context,
-      type: AlertType.warning,
-      title: "Payment Alert",
-      desc: "You do not have sufficient amount for next bid.",
-      buttons: [
-        DialogButton(
-          child: Text(
-            "Cancel",
-            style: TextStyle(color: Colors.white, fontSize: 17),
+      barrierLabel: "Barrier",
+      barrierDismissible: true,
+      barrierColor: Colors.black.withOpacity(0.5),
+      transitionDuration: const Duration(milliseconds: 700),
+      pageBuilder: (_, __, ___) {
+        return Center(
+            child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+              Container(
+                  width: 330,
+                  margin: EdgeInsets.all(10.0),
+                  decoration: const BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                  ),
+                  padding: const EdgeInsets.only(
+                      top: 25, left: 25, right: 25, bottom: 20),
+                  child: Column(
+                    children: [
+                      const Text(
+                        "Payment Alert",
+                        style: TextStyle(
+                            fontWeight: FontWeight.w500, fontSize: 20),
+                      ),
+                      const SizedBox(
+                        height: 10,
+                      ),
+                      const Text(
+                        "You do not have sufficient amount for bid.",
+                        style: TextStyle(
+                            fontSize: 16, fontWeight: FontWeight.w400),
+                      ),
+                      const SizedBox(
+                        height: 20,
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Expanded(
+                            child: DialogButton(
+                              child: const Text(
+                                "Cancel",
+                                style: TextStyle(
+                                    color: Colors.white, fontSize: 17),
+                              ),
+                              onPressed: () {
+                                Navigator.pop(context);
+                                // Navigator.push(context,
+                                //     MaterialPageRoute(builder: (context) => TruckHomePage(2)));
+                              },
+                              color: Constants.alert,
+                            ),
+                          ),
+                          const SizedBox(
+                            width: 15,
+                          ),
+                          Expanded(
+                            child: DialogButton(
+                              child: const Text(
+                                "Add Money",
+                                style: TextStyle(
+                                    color: Colors.white, fontSize: 17),
+                              ),
+                              onPressed: () {
+                                Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) =>
+                                            TruckHomePage(2)));
+                              },
+                              color: Constants.thaartheme,
+                            ),
+                          )
+                        ],
+                      )
+                    ],
+                  ))
+            ]));
+      },
+      transitionBuilder: (_, anim, __, child) {
+        Tween<Offset> tween;
+        if (anim.status == AnimationStatus.reverse) {
+          tween = Tween(begin: Offset(-1, 0), end: Offset.zero);
+        } else {
+          tween = Tween(begin: Offset(1, 0), end: Offset.zero);
+        }
+
+        return SlideTransition(
+          position: tween.animate(anim),
+          child: FadeTransition(
+            opacity: anim,
+            child: child,
           ),
-          onPressed: () => Navigator.pop(context),
-          // color: Colors.,
-        ),
-        DialogButton(
-          child: Text(
-            "Add Money",
-            style: TextStyle(color: Colors.white, fontSize: 17),
+        );
+      },
+    );
+  }
+
+  addtruck(
+    BuildContext context,
+  ) {
+    showGeneralDialog(
+      context: context,
+      barrierLabel: "Barrier",
+      barrierDismissible: true,
+      barrierColor: Colors.black.withOpacity(0.5),
+      transitionDuration: const Duration(milliseconds: 700),
+      pageBuilder: (_, __, ___) {
+        return Center(
+            child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+              Container(
+                  width: 330,
+                  margin: EdgeInsets.all(10.0),
+                  decoration: const BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                  ),
+                  padding: const EdgeInsets.only(
+                      top: 25, left: 25, right: 25, bottom: 20),
+                  child: Column(
+                    children: [
+                      const Text(
+                        "Truck Alert",
+                        style: TextStyle(
+                            fontWeight: FontWeight.w500, fontSize: 20),
+                      ),
+                      const SizedBox(
+                        height: 10,
+                      ),
+                      const Text(
+                        "You do not have active truck to book load.",
+                        style: TextStyle(
+                            fontSize: 16, fontWeight: FontWeight.w400),
+                      ),
+                      const SizedBox(
+                        height: 20,
+                      ),
+                      DialogButton(
+                        child: const Text(
+                          "OK",
+                          style: TextStyle(color: Colors.white, fontSize: 17),
+                        ),
+                        onPressed: () {
+                          Navigator.pop(context);
+                          // Navigator.push(context,
+                          //     MaterialPageRoute(builder: (context) => TruckHomePage(2)));
+                        },
+                        color: Constants.alert,
+                      ),
+                    ],
+                  ))
+            ]));
+      },
+      transitionBuilder: (_, anim, __, child) {
+        Tween<Offset> tween;
+        if (anim.status == AnimationStatus.reverse) {
+          tween = Tween(begin: Offset(-1, 0), end: Offset.zero);
+        } else {
+          tween = Tween(begin: Offset(1, 0), end: Offset.zero);
+        }
+
+        return SlideTransition(
+          position: tween.animate(anim),
+          child: FadeTransition(
+            opacity: anim,
+            child: child,
           ),
-          onPressed: () {
-            Navigator.push(context,
-                MaterialPageRoute(builder: (context) => TruckHomePage(2)));
-          },
-          color: Color(0XFF142438),
-        )
-      ],
-    ).show();
+        );
+      },
+    );
   }
 
   alertDialog(BuildContext context) {

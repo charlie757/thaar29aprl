@@ -24,7 +24,7 @@ class _RateAppInitWidgetState extends State<RateAppInitWidget> {
           });
         },
         builder: (context) => rateMyApp == null
-            ? Center(
+            ? const Center(
                 child: CircularProgressIndicator(),
               )
             : widget.builder(rateMyApp!));

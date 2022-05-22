@@ -38,14 +38,16 @@ class _RegisterKYCState extends State<RegisterKYC> {
     currentUserProvider.currentuser();
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: Constants.thaartheme,
         centerTitle: true,
         title: Text(
           "Thaar Transport",
-          style: GoogleFonts.oswald(),
+          style: GoogleFonts.charm(
+              fontWeight: FontWeight.bold, color: Colors.white, fontSize: 20),
         ),
       ),
       body: Padding(
-        padding: const EdgeInsets.only(top: 30, left: 10, right: 10),
+        padding: const EdgeInsets.only(top: 50, left: 10, right: 10),
         child: Column(
           children: [
             Container(
@@ -56,17 +58,18 @@ class _RegisterKYCState extends State<RegisterKYC> {
                     decoration: BoxDecoration(
                         border: Border.all(color: Colors.yellow, width: 2),
                         borderRadius: BorderRadius.circular(30)),
-                    child: const CircleAvatar(
-                      radius: 30,
-                      backgroundColor: Colors.white,
-                      child: Icon(
-                        Icons.sd_card_alert_sharp,
-                        color: Colors.yellow,
-                      ),
-                    ),
+                    child: CircleAvatar(
+                        radius: 30,
+                        backgroundColor: Colors.white,
+                        child: Image.asset(
+                          'assets/images/kyc.png',
+                          height: 25,
+                          width: 25,
+                          color: Colors.black,
+                        )),
                   ),
                   const SizedBox(
-                    height: 10,
+                    height: 20,
                   ),
                   const Text(
                     "Want to restart KYC?",
@@ -84,42 +87,48 @@ class _RegisterKYCState extends State<RegisterKYC> {
             const SizedBox(
               height: 50,
             ),
-            FlatButton(
-                color: Color(0XFF142438),
-                height: 40,
-                textColor: Colors.white,
-                onPressed: () async {
-                  Navigator.pushReplacement(context,
-                      MaterialPageRoute(builder: (context) => AadhaarKyc()));
-                },
-                child: Container(
-                  alignment: Alignment.center,
-                  width: double.infinity,
-                  child: Text("RESTART KYC"),
-                )),
-            const SizedBox(
-              height: 5,
+            Padding(
+              padding: const EdgeInsets.only(left: 10, right: 10),
+              child: FlatButton(
+                  color: Constants.alert,
+                  height: 40,
+                  textColor: Colors.white,
+                  onPressed: () async {
+                    Navigator.pushReplacement(context,
+                        MaterialPageRoute(builder: (context) => AadhaarKyc()));
+                  },
+                  child: Container(
+                    alignment: Alignment.center,
+                    width: double.infinity,
+                    child: Text("RESTART KYC"),
+                  )),
             ),
-            FlatButton(
-                color: const Color(0XFF142438),
-                textColor: Colors.white,
-                height: 40,
-                onPressed: () async {
-                  // currentUserProvider.usertype == "Transporator"
-                  //     ? Navigator.pushReplacement(
-                  //         context,
-                  //         MaterialPageRoute(
-                  //             builder: (context) => const TruckHomePage()))
-                  Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => const HomePage()));
-                },
-                child: Container(
-                  alignment: Alignment.center,
-                  width: double.infinity,
-                  child: const Text("CONTINUE LATER"),
-                ))
+            const SizedBox(
+              height: 15,
+            ),
+            Padding(
+              padding: const EdgeInsets.only(left: 10, right: 10),
+              child: FlatButton(
+                  color: const Color(0XFF142438),
+                  textColor: Colors.white,
+                  height: 40,
+                  onPressed: () async {
+                    // currentUserProvider.usertype == "Transporator"
+                    //     ? Navigator.pushReplacement(
+                    //         context,
+                    //         MaterialPageRoute(
+                    //             builder: (context) => const TruckHomePage()))
+                    Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const HomePage()));
+                  },
+                  child: Container(
+                    alignment: Alignment.center,
+                    width: double.infinity,
+                    child: const Text("CONTINUE LATER"),
+                  )),
+            )
           ],
         ),
       ),

@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -94,7 +95,11 @@ class _SideBarState extends State<SideBar> {
                         return buildSheet();
                       });
                 },
-                child: const Icon(Icons.logout_outlined),
+                child: const Icon(
+                  Icons.logout_outlined,
+                  color: Colors.red,
+                  size: 25,
+                ),
               ),
             )
           ],
@@ -137,12 +142,14 @@ class _SideBarState extends State<SideBar> {
 
                     await Share.shareFiles([file.path],
                         text:
-                            'Download this app\nhttps://play.google.com/store/apps/details?id=thaar.app.thaartransport');
+                            'Download this app to book load and truck \nhttps://play.google.com/store/apps/details?id=thaar.app.thaartransport');
                   },
-                  leading: Icon(Icons.speaker),
-                  title: Text("Refer a Friend"),
-                  subtitle: Text("Invite your friennd"),
+                  leading: const Icon(Icons.speaker),
+                  title: const Text("Refer a Friend"),
+                  subtitle: const Text("Invite your friennd"),
                 ),
+                // ignore: prefer_const_constructors
+
                 const ListTile(
                   leading: Icon(Icons.folder),
                   title: Text("Terms & Conditions"),
@@ -152,9 +159,9 @@ class _SideBarState extends State<SideBar> {
                   onTap: () {
                     _launchURL();
                   },
-                  leading: Icon(Icons.privacy_tip),
-                  title: Text("Privacy Policy"),
-                  subtitle: Text("Compliance and regulations"),
+                  leading: const Icon(Icons.privacy_tip),
+                  title: const Text("Privacy Policy"),
+                  subtitle: const Text("Compliance and regulations"),
                 ),
                 ListTile(
                   onTap: () {
@@ -196,7 +203,7 @@ class _SideBarState extends State<SideBar> {
             message:
                 'You like this app ? Then take a little bit of you t ime to leave a rating :',
             ignoreNativeDialog: true,
-            dialogStyle: DialogStyle(
+            dialogStyle: const DialogStyle(
                 titleAlign: TextAlign.center,
                 messageAlign: TextAlign.center,
                 messagePadding: EdgeInsets.only(bottom: 20)),
@@ -268,12 +275,16 @@ class _SideBarState extends State<SideBar> {
           mainAxisSize: MainAxisSize.min,
           children: [
             Container(
+              padding: EdgeInsets.only(top: 10),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text(
+                  Text(
                     "Share Feedback",
-                    style: TextStyle(fontWeight: FontWeight.w600, fontSize: 18),
+                    style: GoogleFonts.ibmPlexSerif(
+                      fontSize: 20,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                   InkWell(
                     onTap: () {
@@ -285,7 +296,7 @@ class _SideBarState extends State<SideBar> {
               ),
             ),
             const SizedBox(
-              height: 20,
+              height: 25,
             ),
             Card(
               child: Container(
@@ -300,7 +311,7 @@ class _SideBarState extends State<SideBar> {
               ),
             ),
             const SizedBox(
-              height: 20,
+              height: 25,
             ),
             RatingBar.builder(
               initialRating: rating,
@@ -320,7 +331,7 @@ class _SideBarState extends State<SideBar> {
               },
             ),
             const SizedBox(
-              height: 20,
+              height: 30,
             ),
             Row(
               children: [
@@ -328,7 +339,10 @@ class _SideBarState extends State<SideBar> {
                     child: Container(
                   height: 45,
                   child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                          primary: Constants.kYellowColor),
                       onPressed: () {
+                        clearController();
                         loading == true ? null : Navigator.pop(context);
                       },
                       child: const Text("Back")),
@@ -353,14 +367,18 @@ class _SideBarState extends State<SideBar> {
                           });
                           feedbackRef.add({
                             'userid': UserService().currentUid(),
+                            'posttime': FieldValue.serverTimestamp(),
                             'feedback': feedbackcontroller.text,
                             'rating': rating
                           }).then((value) {
                             state(() {});
                             setState(() {
                               loading = false;
+                              EasyLoading.showToast(
+                                  'Thanks for sharing feedback');
                             });
                             Navigator.pop(context);
+                            clearController();
                             print("feedbackRef $value");
                           });
                         }
@@ -405,11 +423,12 @@ class _SideBarState extends State<SideBar> {
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                const Text(
+                                Text(
                                   "Contact Us",
-                                  style: TextStyle(
-                                      fontWeight: FontWeight.w600,
-                                      fontSize: 18),
+                                  style: GoogleFonts.ibmPlexSerif(
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.w600,
+                                  ),
                                 ),
                                 InkWell(
                                   onTap: () {
@@ -421,7 +440,7 @@ class _SideBarState extends State<SideBar> {
                             ),
                           ),
                           const SizedBox(
-                            height: 10,
+                            height: 20,
                           ),
                           CheckboxListTile(
                               controlAffinity: ListTileControlAffinity.leading,
@@ -534,7 +553,10 @@ class _SideBarState extends State<SideBar> {
                                   child: Container(
                                 height: 45,
                                 child: ElevatedButton(
+                                    style: ElevatedButton.styleFrom(
+                                        primary: Constants.kYellowColor),
                                     onPressed: () {
+                                      clearController();
                                       loading == true
                                           ? null
                                           : Navigator.pop(context);
@@ -551,14 +573,21 @@ class _SideBarState extends State<SideBar> {
                                     style: ElevatedButton.styleFrom(
                                         primary: const Color(0XFF142438)),
                                     onPressed: () {
-                                      if (checkbox5 == true &&
+                                      if (checkbox1 == false &&
+                                          checkbox2 == false &&
+                                          checkbox3 == false &&
+                                          checkbox4 == false &&
+                                          checkbox5 == false) {
+                                        EasyLoading.showToast(
+                                            'Please select any one');
+                                      } else if (checkbox5 == true &&
                                           contactuscontroller.text.isEmpty) {
-                                        Fluttertoast.showToast(
-                                            msg: "Please write somthing");
+                                        EasyLoading.showToast(
+                                            'Please write somthing');
                                       } else if (checkbox4 == true &&
                                           paymentissuecontroller.text.isEmpty) {
-                                        Fluttertoast.showToast(
-                                            msg: "describle payment issue");
+                                        EasyLoading.showToast(
+                                            'Please describle payment issue.');
                                       } else {
                                         state(() {});
                                         setState(() {
@@ -566,6 +595,8 @@ class _SideBarState extends State<SideBar> {
                                         });
                                         contactRef.add({
                                           'userid': UserService().currentUid(),
+                                          'posttime':
+                                              FieldValue.serverTimestamp(),
                                           'reason': checkbox1 == true
                                               ? 'Unable to use thaar transport app?'
                                               : checkbox2 == true
@@ -588,7 +619,11 @@ class _SideBarState extends State<SideBar> {
                                           setState(() {
                                             loading = false;
                                           });
+                                          EasyLoading.showToast(
+                                              'Thanks for sharing your concern');
+
                                           Navigator.pop(context);
+                                          clearController();
                                         });
                                       }
                                     },
@@ -605,6 +640,12 @@ class _SideBarState extends State<SideBar> {
                 ),
               ));
         });
+  }
+
+  clearController() {
+    paymentissuecontroller.clear();
+    contactuscontroller.clear();
+    feedbackcontroller.clear();
   }
 
   Widget buildSheet() {
@@ -629,16 +670,22 @@ class _SideBarState extends State<SideBar> {
           const SizedBox(
             height: 20,
           ),
-          const Text(
+          Text(
             "Are you sure",
-            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            style: GoogleFonts.ibmPlexSerif(
+              fontSize: 20,
+              fontWeight: FontWeight.w600,
+            ),
           ),
-          const SizedBox(
-            height: 10,
-          ),
-          const Text('Do you want to logout?'),
           const SizedBox(
             height: 20,
+          ),
+          const Text(
+            'Do you want to logout?',
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w400),
+          ),
+          const SizedBox(
+            height: 30,
           ),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,

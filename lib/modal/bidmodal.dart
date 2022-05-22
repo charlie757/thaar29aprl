@@ -6,12 +6,11 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 class BidModal {
   String? bidresponse;
-  String? bidtime;
+  Timestamp? bidtime;
   String? biduserid;
   String? rate;
   String? id;
   String? loadid;
-  String? remarks;
   String? btnvalue;
   String? negotiateprice;
   String? paymentstatus;
@@ -20,6 +19,8 @@ class BidModal {
   String? truckid;
   String? truckposttime;
   String? truckownerid;
+  String? loadpostid;
+  String? postuserfeedback;
   BidModal(
       {required this.bidresponse,
       required this.bidtime,
@@ -29,13 +30,14 @@ class BidModal {
       required this.negotiateprice,
       required this.loadid,
       required this.id,
-      required this.remarks,
       required this.paymentstatus,
       required this.paymentid,
       required this.loaderimage,
       this.truckid,
       this.truckposttime,
-      this.truckownerid});
+      this.truckownerid,
+      this.loadpostid,
+      this.postuserfeedback});
 
   BidModal.fromJson(Map<String, dynamic> json) {
     bidresponse = json['bidresponse'];
@@ -46,13 +48,14 @@ class BidModal {
     btnvalue = json['btnvalue'];
     negotiateprice = json['negotiateprice'];
     id = json['id'];
-    remarks = json['remarks'];
     paymentstatus = json['paymentstatus'];
     paymentid = json['paymentid'];
     loaderimage = json['loaderimage'];
     truckid = json['truckid'];
     truckposttime = json['truckposttime'];
     truckownerid = json['truckownerid'];
+    loadpostid = json['loadpostid'];
+    postuserfeedback = json['postuserfeedback'];
   }
 
   Map<String, dynamic> toJson() {
@@ -60,7 +63,6 @@ class BidModal {
     data['bidresponse'] = bidresponse;
     data['bidtime'] = bidtime;
     data['biduserid'] = biduserid;
-    data['remakrs'] = remarks;
     data['negotiateprice'] = negotiateprice;
     data['btnvalue'] = btnvalue;
     data['loadid'] = loadid;
@@ -72,6 +74,8 @@ class BidModal {
     data['truckid'] = truckid;
     data['truckposttime'] = truckposttime;
     data['truckownerid'] = truckownerid;
+    data['loadpostid'] = loadpostid;
+    data['postuserfeedback'] = postuserfeedback;
     return data;
   }
 }

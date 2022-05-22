@@ -78,6 +78,7 @@ class AuthService {
         "gstimg2": "",
         "gstimg3": "",
       },
+      'kycmsg': '',
       "userkycstatus": "Pending",
       "companybio": {"esbmyear": "", "bio": ""}
     });

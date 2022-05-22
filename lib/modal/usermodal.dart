@@ -23,6 +23,7 @@ class UserModel {
   AadharDocument? AadhaarKyc;
   PANDocument? PANKyc;
   GstDocument? GstKyc;
+  String? kycmsg;
   UserModel(
       {this.id,
       this.usernumber,
@@ -43,7 +44,8 @@ class UserModel {
       this.companybio,
       this.AadhaarKyc,
       this.PANKyc,
-      this.GstKyc});
+      this.GstKyc,
+      this.kycmsg});
 
   UserModel.fromJson(Map<String, dynamic> json) {
     id = json['id'] as String;
@@ -72,6 +74,7 @@ class UserModel {
         (json['PANKyc'] != null ? PANDocument.fromJson(json['PANKyc']) : null);
     GstKyc =
         (json['GstKyc'] != null ? GstDocument.fromJson(json['GstKyc']) : null);
+    kycmsg = json['kycmsg'];
   }
 
   Map<String, dynamic> toJson() {
@@ -104,6 +107,7 @@ class UserModel {
     if (this.GstKyc != null) {
       data['GstKyc'] = this.GstKyc!.toJson();
     }
+    data['kycmsg'] = kycmsg;
     return data;
   }
 }

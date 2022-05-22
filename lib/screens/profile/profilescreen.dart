@@ -4,6 +4,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:thaartransport/main.dart';
 import 'package:thaartransport/modal/usermodal.dart';
 import 'package:thaartransport/screens/kyc/kycverfied.dart';
 import 'package:thaartransport/screens/profile/yeardata.dart';
@@ -45,9 +46,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
           if (snapshot.hasError) {
             return const Scaffold(body: Text("Somthing went Wrong"));
           } else if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(child: circularProgress(context));
+            return Center();
           }
-
           UserModel user =
               UserModel.fromJson(snapshot.data!.data() as Map<String, dynamic>);
           return Scaffold(
@@ -59,14 +59,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Container(
-                      height: 200,
+                      height: 250,
                       child: Stack(
                         children: [
                           Container(
-                            height: 150,
+                            height: 200,
                             width: width,
                             child: Image.asset(
-                              'assets/images/background.jpg',
+                              'assets/images/kindpng_4909494.png',
                               height: height,
                               width: width,
                               fit: BoxFit.cover,
@@ -85,23 +85,50 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                       backgroundColor: Colors.black26,
                                       radius: 60,
                                       child: ClipOval(
-                                          child: user.photourl == ''
-                                              ? const Icon(
-                                                  Icons.people_alt,
-                                                  size: 60,
-                                                )
-                                              : Image.network(
-                                                  user.photourl!,
-                                                  fit: BoxFit.fill,
-                                                  width: width,
-                                                  height: height,
-                                                ))))),
+                                        child: CachedNetworkImage(
+                                            // height: 50,
+                                            // width: 50,
+                                            imageUrl: user.photourl!,
+                                            width: MediaQuery.of(context)
+                                                .size
+                                                .width,
+                                            placeholder: (context, url) =>
+                                                Transform.scale(
+                                                  scale: 0.4,
+                                                  child:
+                                                      CircularProgressIndicator(
+                                                    color:
+                                                        Constants.kYellowColor,
+                                                    strokeWidth: 3,
+                                                  ),
+                                                ),
+                                            errorWidget: (context, url,
+                                                    error) =>
+                                                Container(
+                                                    height: 40,
+                                                    width: 40,
+                                                    child: Image.asset(
+                                                        'assets/images/account_profile.png')),
+                                            fit: BoxFit.cover),
+
+                                        // user.photourl == ''
+                                        //     ? const Icon(
+                                        //         Icons.people_alt,
+                                        //         size: 60,
+                                        //       )
+                                        //     : Image.network(
+                                        //         user.photourl!,
+                                        //         fit: BoxFit.fill,
+                                        //         width: width,
+                                        //         height: height,
+                                        //       )
+                                      )))),
                         ],
                       ),
                     ),
                     Padding(
                       padding:
-                          const EdgeInsets.only(top: 20, left: 20, right: 20),
+                          const EdgeInsets.only(top: 15, left: 20, right: 20),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -130,12 +157,34 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       height: height * 0.03,
                     ),
                     user.usertype == "Transporator"
-                        ? user.userkycstatus == 'Pending'
+                        ? user.userkycstatus == 'Pending' ||
+                                user.userkycstatus == "rePending"
                             ? VerifyKYC()
                             : completedKYC()
                         : Container(),
                     SizedBox(
-                      height: 30,
+                      height: 10,
+                    ),
+                    user.usertype == "Transporator"
+                        ? user.userkycstatus == 'Pending' ||
+                                user.userkycstatus == "rePending"
+                            ? Container(
+                                padding: EdgeInsets.only(left: 15, right: 15),
+                                child: Text.rich(TextSpan(
+                                    text: "KYC Status: ",
+                                    style: TextStyle(
+                                        color: Colors.red, fontSize: 18),
+                                    children: [
+                                      TextSpan(
+                                          text: user.kycmsg,
+                                          style: TextStyle(
+                                              color: Colors.black,
+                                              fontSize: 16))
+                                    ])))
+                            : Container()
+                        : Container(),
+                    SizedBox(
+                      height: 40,
                     ),
                     user.usertype == "Transporator"
                         ? user.companybio!.bio! == ""
@@ -231,11 +280,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   fontWeight: FontWeight.bold,
                 ),
               )),
-              Container(
-                width: 70,
-                height: 70,
-                child: Image.asset("assets/images/verified.jpeg"),
+
+              Icon(
+                Icons.verified_user,
+                color: Colors.green,
+                size: 50,
               )
+              // Container(
+              //   width: 70,
+              //   height: 70,
+              //   child: Image.asset("assets/images/verified.jpeg"),
+              // )
             ],
           )
         ],
@@ -245,7 +300,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   Widget VerifyKYC() {
     return InkWell(
-        onTap: () {
+        onTap: () async {
           // Navigator.pushNamed(context, PageRoutes.kycverified);
           Navigator.push(
               context, MaterialPageRoute(builder: (context) => KycVerified()));
@@ -309,44 +364,32 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   Widget container(UserModel user) {
     return Container(
+      padding: EdgeInsets.only(left: 15, right: 15),
       // height: 10,
       decoration: BoxDecoration(border: Border.all(color: Colors.white)),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        // mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
-          Image.asset(
-            'assets/images/download.jpg',
-            width: 80,
-            height: 80,
+          const SizedBox(
+            height: 10,
           ),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            // mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              const SizedBox(
-                height: 10,
-              ),
-              InkWell(
-                  onTap: () {
-                    _onCompanyBio(user);
-                  },
-                  child: Container(
-                    width: 250,
-                    height: 40,
-                    decoration:
-                        BoxDecoration(border: Border.all(color: Colors.blue)),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: const [
-                        Icon(Icons.add),
-                        Text("Add Company Bio")
-                      ],
-                    ),
-                  )),
-              const SizedBox(
-                height: 10,
-              )
-            ],
+          InkWell(
+              onTap: () {
+                _onCompanyBio(user);
+              },
+              child: Container(
+                width: MediaQuery.of(context).size.width,
+                height: 40,
+                decoration:
+                    BoxDecoration(border: Border.all(color: Colors.blue)),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: const [Icon(Icons.add), Text("Add Company Bio")],
+                ),
+              )),
+          const SizedBox(
+            height: 10,
           )
         ],
       ),
@@ -391,9 +434,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text(
+                  Text(
                     "Add Company Bio",
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    style: GoogleFonts.ibmPlexSerif(
+                      fontSize: 20,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                   IconButton(
                       onPressed: () {
@@ -403,9 +449,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ],
               ),
               const SizedBox(
-                height: 10,
+                height: 20,
               ),
-              const Text("Year of Establishment"),
+              Text(
+                "Year of Establishment",
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w300),
+              ),
               const SizedBox(
                 height: 10,
               ),
@@ -416,9 +465,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 // initialValue: selectyear.text,
                 controller: selectyear,
                 readOnly: true,
-                decoration: const InputDecoration(
+                decoration: InputDecoration(
                     hintText: "Select Year",
-                    suffixIcon: Icon(Icons.file_copy_sharp)),
+                    suffixIcon: Icon(
+                      Icons.file_copy_sharp,
+                      color: Constants.alert,
+                    )),
                 validator: (val) {
                   if (val!.isEmpty) {
                     return "Please choose the year of establishment";
@@ -428,27 +480,31 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 },
               ),
               SizedBox(
-                height: 10,
+                height: 20,
               ),
               Card(
                 color: Colors.grey[200],
-                child: TextFormField(
-                  controller: companyBio,
-                  maxLength: 100,
-                  keyboardType: TextInputType.multiline,
-                  maxLines: 5,
-                  decoration: const InputDecoration(
-                    disabledBorder: InputBorder.none,
-                    focusedBorder: InputBorder.none,
-                    hintText: "Enter your Bio here..!",
+                child: Padding(
+                  padding: const EdgeInsets.only(left: 10),
+                  child: TextFormField(
+                    controller: companyBio,
+                    maxLength: 100,
+                    keyboardType: TextInputType.multiline,
+                    maxLines: 5,
+                    decoration: const InputDecoration(
+                      border: InputBorder.none,
+                      disabledBorder: InputBorder.none,
+                      focusedBorder: InputBorder.none,
+                      hintText: "Enter your Bio here..!",
+                    ),
                   ),
                 ),
               ),
               const SizedBox(
-                height: 20,
+                height: 30,
               ),
               FlatButton(
-                  color: Constants.btnBG,
+                  color: Constants.thaartheme,
                   textColor: Colors.white,
                   onPressed: () async {
                     FormState? form = _formKey.currentState;

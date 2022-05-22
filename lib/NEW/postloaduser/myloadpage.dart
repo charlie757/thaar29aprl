@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:rflutter_alert/rflutter_alert.dart';
 import 'package:shimmer_animation/shimmer_animation.dart';
+import 'package:thaartransport/NEW/postloaduser/loadpagedata.dart';
 import 'package:thaartransport/NEW/postloaduser/shipperhomepage.dart';
 import 'package:thaartransport/addnewload/PostLoad.dart';
 import 'package:thaartransport/addnewload/orderpostconfirmed.dart';
@@ -63,18 +64,41 @@ class _MyLoadPageState extends State<MyLoadPage> {
     super.initState();
     postloadcount();
     retriveCurrentUser();
+    fetchallBid();
+  }
+
+  fetchallBid() async {
+    await postRef
+        .where('ownerId', isEqualTo: UserService().currentUid())
+        .get()
+        .then((value) {
+      value.docs.forEach((element) {
+        print(element['postid']);
+      });
+    });
   }
 
   Widget filterPostIcon() {
-    return Container(
-        padding: const EdgeInsets.only(top: 10, left: 10),
-        alignment: Alignment.centerLeft,
-        child: FlatButton.icon(
-            onPressed: () {
-              filterPost();
-            },
-            icon: const Icon(Icons.filter_alt_sharp),
-            label: const Text("Filter")));
+    return Padding(
+      padding: const EdgeInsets.only(left: 10, bottom: 10, top: 5),
+      child: InkWell(
+        onTap: () {
+          filterPost();
+        },
+        child: Row(
+          children: const [
+            Icon(Icons.filter_alt_sharp),
+            SizedBox(
+              width: 10,
+            ),
+            Text(
+              "Filter",
+              style: TextStyle(fontSize: 18),
+            )
+          ],
+        ),
+      ),
+    );
   }
 
   Widget _filterPost() {
@@ -85,9 +109,7 @@ class _MyLoadPageState extends State<MyLoadPage> {
             stream: postRef
                 .where('ownerId', isEqualTo: widget.currentuser)
                 .where('loadstatus', isEqualTo: "Active")
-                .orderBy(
-                  'loadposttime',
-                )
+                .orderBy('loadposttime', descending: true)
                 .snapshots(),
             builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
               if (snapshot.hasError) {
@@ -103,12 +125,13 @@ class _MyLoadPageState extends State<MyLoadPage> {
                       filterPostIcon(),
                       Expanded(
                         child: Container(
-                            height: MediaQuery.of(context).size.height,
-                            alignment: Alignment.center,
-                            child: const Text(
-                              "You have not Active loads at the moment",
-                              style: TextStyle(fontSize: 17),
-                            )),
+                          height: MediaQuery.of(context).size.height,
+                          alignment: Alignment.center,
+                          child: Text(
+                            "No Active loads at the moment",
+                            style: GoogleFonts.ibmPlexSerif(fontSize: 18),
+                          ),
+                        ),
                       )
                     ],
                   ),
@@ -117,39 +140,25 @@ class _MyLoadPageState extends State<MyLoadPage> {
               return Column(
                 children: [
                   loadbutton(),
-                  Container(
-                      child: Expanded(
-                          child: ListView(
-                              shrinkWrap: true,
-                              scrollDirection: Axis.vertical,
-                              physics: ScrollPhysics(),
-                              children: [
-                        filterPostIcon(),
-                        ListView.builder(
-                            shrinkWrap: true,
-                            physics: ScrollPhysics(),
-                            scrollDirection: Axis.vertical,
-                            itemCount: snapshot.data!.docs.length,
-                            itemBuilder: (context, int index) {
-                              PostModal posts = PostModal.fromJson(
-                                  snapshot.data!.docs[index].data()
-                                      as Map<String, dynamic>);
+                  const SizedBox(
+                    height: 5,
+                  ),
+                  filterPostIcon(),
+                  Expanded(
+                      child: ListView.builder(
+                          shrinkWrap: true,
+                          physics: ScrollPhysics(),
+                          scrollDirection: Axis.vertical,
+                          itemCount: snapshot.data!.docs.length,
+                          itemBuilder: (context, int index) {
+                            PostModal posts = PostModal.fromJson(
+                                snapshot.data!.docs[index].data()
+                                    as Map<String, dynamic>);
 
-                              link = posts.postid!;
+                            link = posts.postid!;
 
-                              return LoadPosts(
-                                  posts.loadstatus!,
-                                  posts.loadposttime!,
-                                  posts.sourcelocation!,
-                                  posts.destinationlocation!,
-                                  posts.material!,
-                                  posts.quantity!,
-                                  posts.expectedprice!,
-                                  posts,
-                                  posts.priceunit!,
-                                  posts.postexpiretime!);
-                            })
-                      ])))
+                            return LoadPageData(posts);
+                          }))
                 ],
               );
             })
@@ -158,9 +167,7 @@ class _MyLoadPageState extends State<MyLoadPage> {
                 stream: postRef
                     .where('ownerId', isEqualTo: widget.currentuser)
                     .where('loadstatus', isEqualTo: 'Expired')
-                    .orderBy(
-                      'loadposttime',
-                    )
+                    .orderBy('loadposttime', descending: true)
                     .snapshots(),
                 builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
                   if (snapshot.hasError) {
@@ -177,12 +184,13 @@ class _MyLoadPageState extends State<MyLoadPage> {
                           filterPostIcon(),
                           Expanded(
                             child: Container(
-                                height: MediaQuery.of(context).size.height,
-                                alignment: Alignment.center,
-                                child: const Text(
-                                  "You have not Expired loads at the moment",
-                                  style: TextStyle(fontSize: 17),
-                                )),
+                              height: MediaQuery.of(context).size.height,
+                              alignment: Alignment.center,
+                              child: Text(
+                                "No Expired loads at the moment",
+                                style: GoogleFonts.ibmPlexSerif(fontSize: 18),
+                              ),
+                            ),
                           )
                         ],
                       ),
@@ -191,39 +199,25 @@ class _MyLoadPageState extends State<MyLoadPage> {
                   return Column(
                     children: [
                       loadbutton(),
-                      Container(
-                          child: Expanded(
-                              child: ListView(
-                                  shrinkWrap: true,
-                                  scrollDirection: Axis.vertical,
-                                  physics: ScrollPhysics(),
-                                  children: [
-                            filterPostIcon(),
-                            ListView.builder(
-                                shrinkWrap: true,
-                                physics: ScrollPhysics(),
-                                scrollDirection: Axis.vertical,
-                                itemCount: snapshot.data!.docs.length,
-                                itemBuilder: (context, int index) {
-                                  PostModal posts = PostModal.fromJson(
-                                      snapshot.data!.docs[index].data()
-                                          as Map<String, dynamic>);
+                      const SizedBox(
+                        height: 5,
+                      ),
+                      filterPostIcon(),
+                      Expanded(
+                          child: ListView.builder(
+                              shrinkWrap: true,
+                              physics: ScrollPhysics(),
+                              scrollDirection: Axis.vertical,
+                              itemCount: snapshot.data!.docs.length,
+                              itemBuilder: (context, int index) {
+                                PostModal posts = PostModal.fromJson(
+                                    snapshot.data!.docs[index].data()
+                                        as Map<String, dynamic>);
 
-                                  link = posts.postid!;
+                                link = posts.postid!;
 
-                                  return LoadPosts(
-                                      posts.loadstatus!,
-                                      posts.loadposttime!,
-                                      posts.sourcelocation!,
-                                      posts.destinationlocation!,
-                                      posts.material!,
-                                      posts.quantity!,
-                                      posts.expectedprice!,
-                                      posts,
-                                      posts.priceunit!,
-                                      posts.postexpiretime!);
-                                })
-                          ])))
+                                return LoadPageData(posts);
+                              }))
                     ],
                   );
                 })
@@ -231,10 +225,8 @@ class _MyLoadPageState extends State<MyLoadPage> {
                 ? StreamBuilder(
                     stream: postRef
                         .where('ownerId', isEqualTo: widget.currentuser)
-                        .where('loadstatus', isEqualTo: 'Intransit')
-                        .orderBy(
-                          'loadposttime',
-                        )
+                        .where('loadstatus', isEqualTo: 'InTransit')
+                        .orderBy('loadposttime', descending: true)
                         .snapshots(),
                     builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
                       if (snapshot.hasError) {
@@ -251,12 +243,14 @@ class _MyLoadPageState extends State<MyLoadPage> {
                               filterPostIcon(),
                               Expanded(
                                 child: Container(
-                                    height: MediaQuery.of(context).size.height,
-                                    alignment: Alignment.center,
-                                    child: const Text(
-                                      "You have not Transit loads at the moment",
-                                      style: TextStyle(fontSize: 17),
-                                    )),
+                                  height: MediaQuery.of(context).size.height,
+                                  alignment: Alignment.center,
+                                  child: Text(
+                                    "No Transit loads at the moment",
+                                    style:
+                                        GoogleFonts.ibmPlexSerif(fontSize: 18),
+                                  ),
+                                ),
                               )
                             ],
                           ),
@@ -265,42 +259,25 @@ class _MyLoadPageState extends State<MyLoadPage> {
                       return Column(
                         children: [
                           loadbutton(),
-                          Container(
-                              child: Expanded(
-                                  child: ListView(
-                                      shrinkWrap: true,
-                                      scrollDirection: Axis.vertical,
-                                      physics: ScrollPhysics(),
-                                      children: [
-                                // filter(),
+                          const SizedBox(
+                            height: 5,
+                          ),
+                          filterPostIcon(),
+                          Expanded(
+                              child: ListView.builder(
+                                  shrinkWrap: true,
+                                  physics: ScrollPhysics(),
+                                  scrollDirection: Axis.vertical,
+                                  itemCount: snapshot.data!.docs.length,
+                                  itemBuilder: (context, int index) {
+                                    PostModal posts = PostModal.fromJson(
+                                        snapshot.data!.docs[index].data()
+                                            as Map<String, dynamic>);
 
-                                filterPostIcon(),
-                                // filterWidget(),
-                                ListView.builder(
-                                    shrinkWrap: true,
-                                    physics: ScrollPhysics(),
-                                    scrollDirection: Axis.vertical,
-                                    itemCount: snapshot.data!.docs.length,
-                                    itemBuilder: (context, int index) {
-                                      PostModal posts = PostModal.fromJson(
-                                          snapshot.data!.docs[index].data()
-                                              as Map<String, dynamic>);
+                                    link = posts.postid!;
 
-                                      link = posts.postid!;
-
-                                      return LoadPosts(
-                                          posts.loadstatus!,
-                                          posts.loadposttime!,
-                                          posts.sourcelocation!,
-                                          posts.destinationlocation!,
-                                          posts.material!,
-                                          posts.quantity!,
-                                          posts.expectedprice!,
-                                          posts,
-                                          posts.priceunit!,
-                                          posts.postexpiretime!);
-                                    })
-                              ])))
+                                    return LoadPageData(posts);
+                                  }))
                         ],
                       );
                     })
@@ -309,9 +286,7 @@ class _MyLoadPageState extends State<MyLoadPage> {
                         stream: postRef
                             .where('ownerId', isEqualTo: widget.currentuser)
                             .where('loadstatus', isEqualTo: 'Completed')
-                            .orderBy(
-                              'loadposttime',
-                            )
+                            .orderBy('loadposttime', descending: true)
                             .snapshots(),
                         builder:
                             (context, AsyncSnapshot<QuerySnapshot> snapshot) {
@@ -329,13 +304,15 @@ class _MyLoadPageState extends State<MyLoadPage> {
                                   filterPostIcon(),
                                   Expanded(
                                     child: Container(
-                                        height:
-                                            MediaQuery.of(context).size.height,
-                                        alignment: Alignment.center,
-                                        child: const Text(
-                                          "You have not Completed loads at the moment",
-                                          style: TextStyle(fontSize: 17),
-                                        )),
+                                      height:
+                                          MediaQuery.of(context).size.height,
+                                      alignment: Alignment.center,
+                                      child: Text(
+                                        "No Completed loads at the moment",
+                                        style: GoogleFonts.ibmPlexSerif(
+                                            fontSize: 18),
+                                      ),
+                                    ),
                                   )
                                 ],
                               ),
@@ -344,50 +321,32 @@ class _MyLoadPageState extends State<MyLoadPage> {
                           return Column(
                             children: [
                               loadbutton(),
-                              Container(
-                                  child: Expanded(
-                                      child: ListView(
-                                          shrinkWrap: true,
-                                          scrollDirection: Axis.vertical,
-                                          physics: ScrollPhysics(),
-                                          children: [
-                                    // filter(),
+                              const SizedBox(
+                                height: 5,
+                              ),
+                              filterPostIcon(),
+                              Expanded(
+                                  child: ListView.builder(
+                                      shrinkWrap: true,
+                                      physics: ScrollPhysics(),
+                                      scrollDirection: Axis.vertical,
+                                      itemCount: snapshot.data!.docs.length,
+                                      itemBuilder: (context, int index) {
+                                        PostModal posts = PostModal.fromJson(
+                                            snapshot.data!.docs[index].data()
+                                                as Map<String, dynamic>);
 
-                                    filterPostIcon(),
-                                    ListView.builder(
-                                        shrinkWrap: true,
-                                        physics: ScrollPhysics(),
-                                        scrollDirection: Axis.vertical,
-                                        itemCount: snapshot.data!.docs.length,
-                                        itemBuilder: (context, int index) {
-                                          PostModal posts = PostModal.fromJson(
-                                              snapshot.data!.docs[index].data()
-                                                  as Map<String, dynamic>);
+                                        link = posts.postid!;
 
-                                          link = posts.postid!;
-
-                                          return LoadPosts(
-                                              posts.loadstatus!,
-                                              posts.loadposttime!,
-                                              posts.sourcelocation!,
-                                              posts.destinationlocation!,
-                                              posts.material!,
-                                              posts.quantity!,
-                                              posts.expectedprice!,
-                                              posts,
-                                              posts.priceunit!,
-                                              posts.postexpiretime!);
-                                        })
-                                  ])))
+                                        return LoadPageData(posts);
+                                      }))
                             ],
                           );
                         })
                     : StreamBuilder(
                         stream: postRef
                             .where('ownerId', isEqualTo: widget.currentuser)
-                            .orderBy(
-                              'loadposttime',
-                            )
+                            .orderBy('loadposttime', descending: true)
                             .snapshots(),
                         builder:
                             (context, AsyncSnapshot<QuerySnapshot> snapshot) {
@@ -405,13 +364,15 @@ class _MyLoadPageState extends State<MyLoadPage> {
                                   filterPostIcon(),
                                   Expanded(
                                     child: Container(
-                                        height:
-                                            MediaQuery.of(context).size.height,
-                                        alignment: Alignment.center,
-                                        child: const Text(
-                                          "You have not Active loads at the moment",
-                                          style: TextStyle(fontSize: 17),
-                                        )),
+                                      height:
+                                          MediaQuery.of(context).size.height,
+                                      alignment: Alignment.center,
+                                      child: Text(
+                                        "No Active loads at the moment",
+                                        style: GoogleFonts.ibmPlexSerif(
+                                            fontSize: 18),
+                                      ),
+                                    ),
                                   )
                                 ],
                               ),
@@ -420,49 +381,43 @@ class _MyLoadPageState extends State<MyLoadPage> {
                           return Column(
                             children: [
                               loadbutton(),
-                              Container(
-                                  child: Expanded(
-                                      child: ListView(
-                                          shrinkWrap: true,
-                                          scrollDirection: Axis.vertical,
-                                          physics: ScrollPhysics(),
+                              const SizedBox(
+                                height: 5,
+                              ),
+                              filterPostIcon(),
+                              Expanded(
+                                  child: ListView.builder(
+                                      shrinkWrap: true,
+                                      physics: ScrollPhysics(),
+                                      scrollDirection: Axis.vertical,
+                                      itemCount: snapshot.data!.docs.length,
+                                      itemBuilder: (context, int index) {
+                                        PostModal posts = PostModal.fromJson(
+                                            snapshot.data!.docs[index].data()
+                                                as Map<String, dynamic>);
+
+                                        link = posts.postid!;
+
+                                        return Column(
                                           children: [
-                                    // filter(),
-
-                                    filterPostIcon(),
-                                    // filterWidget(),
-                                    ListView.builder(
-                                        shrinkWrap: true,
-                                        physics: ScrollPhysics(),
-                                        scrollDirection: Axis.vertical,
-                                        itemCount: snapshot.data!.docs.length,
-                                        itemBuilder: (context, int index) {
-                                          PostModal posts = PostModal.fromJson(
-                                              snapshot.data!.docs[index].data()
-                                                  as Map<String, dynamic>);
-
-                                          link = posts.postid!;
-
-                                          return Column(
-                                            children: [
-                                              LoadPosts(
-                                                  posts.loadstatus!,
-                                                  posts.loadposttime!,
-                                                  posts.sourcelocation!,
-                                                  posts.destinationlocation!,
-                                                  posts.material!,
-                                                  posts.quantity!,
-                                                  posts.expectedprice!,
-                                                  posts,
-                                                  posts.priceunit!,
-                                                  posts.postexpiretime!),
-                                              const SizedBox(
-                                                height: 10,
-                                              )
-                                            ],
-                                          );
-                                        })
-                                  ])))
+                                            LoadPageData(posts),
+                                            // LoadPosts(
+                                            //     posts.loadstatus!,
+                                            //     posts.loadposttime!,
+                                            //     posts.sourcelocation!,
+                                            //     posts.destinationlocation!,
+                                            //     posts.material!,
+                                            //     posts.quantity!,
+                                            //     posts.expectedprice!,
+                                            //     posts,
+                                            //     posts.priceunit!,
+                                            //     posts.postexpiretime!),
+                                            const SizedBox(
+                                              height: 5,
+                                            )
+                                          ],
+                                        );
+                                      }))
                             ],
                           );
                         });
@@ -482,10 +437,27 @@ class _MyLoadPageState extends State<MyLoadPage> {
     var ref = posts.postid;
     double height = MediaQuery.of(context).size.height;
     double width = MediaQuery.of(context).size.width;
+
     final currenttime = DateTime.now();
-    final backenddate = DateTime.parse(postexpiretime);
-    final difference = backenddate.difference(currenttime).inHours;
-    final checkdifference = difference >= 1 ? difference : 1;
+    final backendtime = DateTime.parse(postexpiretime);
+    final differencehours = backendtime.difference(currenttime).inHours;
+    final checkdifference = differencehours >= 1 ? differencehours : 1;
+
+    final differenceinmin = backendtime.difference(currenttime).inMinutes;
+    final checkdifferenceinmin =
+        differenceinmin >= 60 ? checkdifference : differenceinmin;
+
+    final differenceinsec = backendtime.difference(currenttime).inSeconds;
+    final checkdifferenceinsec =
+        differenceinsec >= 1 ? differenceinmin : differenceinsec;
+
+    checkdifferenceinsec == 0
+        ? postRef.doc(posts.postid).update({'loadstatus': 'Expired'})
+        : null;
+
+    print("expiretime ${posts.postid}");
+    print("checkdifferenceinsec $checkdifferenceinsec");
+    print("checkdifference $checkdifference");
 
     return InkWell(
         onTap: () {
@@ -506,6 +478,11 @@ class _MyLoadPageState extends State<MyLoadPage> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
+                            posts.loadstatus == "Active"
+                                ? const SizedBox()
+                                : const SizedBox(
+                                    height: 8,
+                                  ),
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
@@ -517,17 +494,28 @@ class _MyLoadPageState extends State<MyLoadPage> {
                                       border: Border.all(),
                                       borderRadius: BorderRadius.circular(25)),
                                   child: Text(
-                                    status.toUpperCase(),
+                                    posts.loadorderstatus == "InTransit" ||
+                                            posts.loadorderstatus == "Completed"
+                                        ? posts.loadorderstatus!.toUpperCase()
+                                        : status.toUpperCase(),
                                     style: TextStyle(
                                         fontStyle: FontStyle.italic,
                                         fontWeight: FontWeight.bold,
                                         color: status == "Active"
                                             ? Constants.cursorColor
-                                            : status == "Expired"
+                                            : posts.loadorderstatus !=
+                                                        "InTransit" &&
+                                                    posts.loadorderstatus !=
+                                                        "Completed" &&
+                                                    posts.loadorderstatus ==
+                                                        "Active" &&
+                                                    status == "Expired"
                                                 ? Constants.alert
-                                                : status == "InTransit"
+                                                : posts.loadorderstatus ==
+                                                        "InTransit"
                                                     ? Colors.purple
-                                                    : status == "InProgress"
+                                                    : posts.loadorderstatus ==
+                                                            "InProgress"
                                                         ? Colors.indigo
                                                         : Colors.blue),
                                   ),
@@ -552,12 +540,12 @@ class _MyLoadPageState extends State<MyLoadPage> {
                                               child: Text(
                                                 "Remove from market",
                                               )),
-                                          const PopupMenuItem(
-                                              value: 2,
-                                              enabled: true,
-                                              child: Text(
-                                                "Share on WhatsApp",
-                                              )),
+                                          // const PopupMenuItem(
+                                          //     value: 2,
+                                          //     enabled: true,
+                                          //     child: Text(
+                                          //       "Share on WhatsApp",
+                                          //     )),
                                         ],
                                         onSelected: (menu) {
                                           if (menu == 1) {
@@ -584,9 +572,11 @@ class _MyLoadPageState extends State<MyLoadPage> {
                                     : Container()
                               ],
                             ),
-                            const SizedBox(
-                              height: 2,
-                            ),
+                            posts.loadstatus == "Active"
+                                ? const SizedBox()
+                                : const SizedBox(
+                                    height: 8,
+                                  ),
                             Row(
                               children: [
                                 Container(
@@ -649,7 +639,7 @@ class _MyLoadPageState extends State<MyLoadPage> {
                               ],
                             ),
                             const SizedBox(
-                              height: 12,
+                              height: 15,
                             ),
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -709,8 +699,9 @@ class _MyLoadPageState extends State<MyLoadPage> {
                                           color: Colors.blue,
                                         ),
                                         Text(expectedPrice,
-                                            style:
-                                                GoogleFonts.lato(fontSize: 18)),
+                                            style: GoogleFonts.lato(
+                                                fontSize: 19,
+                                                fontWeight: FontWeight.w800)),
                                       ],
                                     ),
                                     Row(
@@ -732,31 +723,55 @@ class _MyLoadPageState extends State<MyLoadPage> {
                             const SizedBox(
                               height: 10,
                             ),
-                            Text.rich(TextSpan(
-                              text: "Expires In:  ",
-                              style: const TextStyle(
-                                  fontWeight: FontWeight.w400, fontSize: 16),
-                              children: [
-                                TextSpan(
-                                    text: checkdifference.toString(),
+                            posts.loadstatus == "Active"
+                                ? Text.rich(TextSpan(
+                                    text: "Expire After:  ",
                                     style: const TextStyle(
-                                        fontWeight: FontWeight.w600,
-                                        fontSize: 17),
-                                    children: const [
+                                        fontWeight: FontWeight.w400,
+                                        fontSize: 16),
+                                    children: [
                                       TextSpan(
-                                          text: " Hours",
+                                          text: differenceinmin >= 60
+                                              ? checkdifference.toString()
+                                              : differenceinsec >= 1
+                                                  ? differenceinmin.toString()
+                                                  : differenceinsec.toString(),
                                           style: TextStyle(
-                                              fontWeight: FontWeight.w400,
-                                              fontSize: 15))
-                                    ]),
-                              ],
-                            ))
+                                              fontWeight: FontWeight.w600,
+                                              fontSize: 17,
+                                              color: differenceinmin >= 60
+                                                  ? Colors.green.shade900
+                                                  : differenceinsec >= 1
+                                                      ? Colors.orange
+                                                      : Colors.orange),
+                                          children: [
+                                            TextSpan(
+                                                text: differenceinmin >= 60
+                                                    ? " Hours"
+                                                    : differenceinsec >= 1
+                                                        ? " Min"
+                                                        : " Sec",
+                                                style: TextStyle(
+                                                    fontWeight: FontWeight.w400,
+                                                    fontSize: 15,
+                                                    color: differenceinmin >= 60
+                                                        ? Colors.green.shade900
+                                                        : differenceinsec >= 1
+                                                            ? Colors.orange
+                                                            : Colors.orange))
+                                          ]),
+                                    ],
+                                  ))
+                                : Container()
                           ],
                         )),
                     SizedBox(
                       height: height * 0.02,
                     ),
-                    posts.loadstatus == "Expired"
+                    posts.loadorderstatus != "InTransit" &&
+                            posts.loadorderstatus != "Completed" &&
+                            posts.loadorderstatus == "Active" &&
+                            status == "Expired"
                         ? InkWell(
                             onTap: () {
                               Navigator.push(
@@ -826,7 +841,7 @@ class _MyLoadPageState extends State<MyLoadPage> {
           color: const Color(0XFF142438),
           onPressed: () async {
             loadcount.length >= 5
-                ? totalAmount < 500
+                ? totalAmount < 100
                     ? addMoneyAlert(context)
                     : Navigator.push(
                         context,
@@ -844,7 +859,7 @@ class _MyLoadPageState extends State<MyLoadPage> {
                       pageBuilder: (c, a1, a2) => PostLoad(),
                       transitionsBuilder: (c, anim, a2, child) =>
                           FadeTransition(opacity: anim, child: child),
-                      transitionDuration: const Duration(milliseconds: 400),
+                      transitionDuration: const Duration(milliseconds: 200),
                     ));
           },
           child: Shimmer(
@@ -888,140 +903,248 @@ class _MyLoadPageState extends State<MyLoadPage> {
               ),
             ),
             child: StatefulBuilder(builder: (context, state) {
-              return Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Container(
-                    padding: const EdgeInsets.only(left: 8, right: 8, top: 8),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        const Text(
-                          "Select your filter feed",
-                          style: TextStyle(
-                              fontSize: 18, fontWeight: FontWeight.w600),
-                        ),
-                        InkWell(
-                            onTap: () {
-                              Navigator.pop(context);
-                            },
-                            child: const Icon(Icons.close))
-                      ],
+              return Padding(
+                padding: const EdgeInsets.only(
+                    top: 15, bottom: 30, left: 15, right: 15),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            "Select your filter feed",
+                            style: GoogleFonts.ibmPlexSerif(
+                              fontSize: 20,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          InkWell(
+                              onTap: () {
+                                Navigator.pop(context);
+                              },
+                              child: CircleAvatar(
+                                backgroundColor: Constants.btninactive,
+                                child: const Icon(
+                                  Icons.close,
+                                  color: Colors.black,
+                                ),
+                              ))
+                        ],
+                      ),
                     ),
-                  ),
-                  CheckboxListTile(
-                      controlAffinity: ListTileControlAffinity.leading,
-                      title: Text("All"),
-                      value: allCheckbox,
-                      onChanged: (val) {
-                        state(() {});
-                        setState(() {
-                          allCheckbox = val!;
-                          activeCheckbox = false;
-                          expiredCheckbox = false;
-                          intransitCheckbox = false;
-                          completedCheckbox = false;
-                          Navigator.pop(context);
-                        });
-                      }),
-                  CheckboxListTile(
-                      controlAffinity: ListTileControlAffinity.leading,
-                      title: Text("Active"),
-                      value: activeCheckbox,
-                      onChanged: (val) {
-                        state(() {});
-                        setState(() {
-                          activeCheckbox = val!;
-                          allCheckbox = false;
-                          expiredCheckbox = false;
-                          intransitCheckbox = false;
-                          completedCheckbox = false;
-                          Navigator.pop(context);
-                        });
-                      }),
-                  CheckboxListTile(
-                      controlAffinity: ListTileControlAffinity.leading,
-                      title: Text("Expired"),
-                      value: expiredCheckbox,
-                      onChanged: (val) {
-                        state(() {});
-                        setState(() {
-                          expiredCheckbox = val!;
-                          activeCheckbox = false;
-                          allCheckbox = false;
-                          intransitCheckbox = false;
-                          completedCheckbox = false;
-                          Navigator.pop(context);
-                        });
-                      }),
-                  CheckboxListTile(
-                      controlAffinity: ListTileControlAffinity.leading,
-                      title: Text("InTransit"),
-                      value: intransitCheckbox,
-                      onChanged: (val) {
-                        state(() {});
-                        setState(() {
-                          intransitCheckbox = val!;
-                          activeCheckbox = false;
-                          expiredCheckbox = false;
-                          allCheckbox = false;
-                          completedCheckbox = false;
-                          Navigator.pop(context);
-                        });
-                      }),
-                  CheckboxListTile(
-                      controlAffinity: ListTileControlAffinity.leading,
-                      title: Text("Completed"),
-                      value: completedCheckbox,
-                      onChanged: (val) {
-                        state(() {});
-                        setState(() {
-                          completedCheckbox = val!;
-                          activeCheckbox = false;
-                          expiredCheckbox = false;
-                          intransitCheckbox = false;
-                          allCheckbox = false;
-                          Navigator.pop(context);
-                        });
-                      })
-                ],
+                    const SizedBox(
+                      height: 30,
+                    ),
+                    CheckboxListTile(
+                        controlAffinity: ListTileControlAffinity.leading,
+                        title: const Text(
+                          "All",
+                          style: TextStyle(
+                              fontWeight: FontWeight.w500, fontSize: 19),
+                        ),
+                        value: allCheckbox,
+                        onChanged: (val) {
+                          state(() {});
+                          setState(() {
+                            allCheckbox = val!;
+                            activeCheckbox = false;
+                            expiredCheckbox = false;
+                            intransitCheckbox = false;
+                            completedCheckbox = false;
+                            Navigator.pop(context);
+                          });
+                        }),
+                    CheckboxListTile(
+                        controlAffinity: ListTileControlAffinity.leading,
+                        title: const Text(
+                          "Active",
+                          style: TextStyle(
+                              fontWeight: FontWeight.w500, fontSize: 19),
+                        ),
+                        value: activeCheckbox,
+                        onChanged: (val) {
+                          state(() {});
+                          setState(() {
+                            activeCheckbox = val!;
+                            allCheckbox = false;
+                            expiredCheckbox = false;
+                            intransitCheckbox = false;
+                            completedCheckbox = false;
+                            Navigator.pop(context);
+                          });
+                        }),
+                    CheckboxListTile(
+                        controlAffinity: ListTileControlAffinity.leading,
+                        title: const Text(
+                          "Expired",
+                          style: TextStyle(
+                              fontWeight: FontWeight.w500, fontSize: 19),
+                        ),
+                        value: expiredCheckbox,
+                        onChanged: (val) {
+                          state(() {});
+                          setState(() {
+                            expiredCheckbox = val!;
+                            activeCheckbox = false;
+                            allCheckbox = false;
+                            intransitCheckbox = false;
+                            completedCheckbox = false;
+                            Navigator.pop(context);
+                          });
+                        }),
+                    CheckboxListTile(
+                        controlAffinity: ListTileControlAffinity.leading,
+                        title: const Text(
+                          "InTransit",
+                          style: TextStyle(
+                              fontWeight: FontWeight.w500, fontSize: 19),
+                        ),
+                        value: intransitCheckbox,
+                        onChanged: (val) {
+                          state(() {});
+                          setState(() {
+                            intransitCheckbox = val!;
+                            activeCheckbox = false;
+                            expiredCheckbox = false;
+                            allCheckbox = false;
+                            completedCheckbox = false;
+                            Navigator.pop(context);
+                          });
+                        }),
+                    CheckboxListTile(
+                        controlAffinity: ListTileControlAffinity.leading,
+                        title: const Text(
+                          "Completed",
+                          style: TextStyle(
+                              fontWeight: FontWeight.w500, fontSize: 19),
+                        ),
+                        value: completedCheckbox,
+                        onChanged: (val) {
+                          state(() {});
+                          setState(() {
+                            completedCheckbox = val!;
+                            activeCheckbox = false;
+                            expiredCheckbox = false;
+                            intransitCheckbox = false;
+                            allCheckbox = false;
+                            Navigator.pop(context);
+                          });
+                        }),
+                    const SizedBox(
+                      height: 15,
+                    )
+                  ],
+                ),
               );
             }),
           );
         });
   }
 
-  addMoneyAlert(BuildContext context) {
-    Alert(
+  addMoneyAlert(
+    BuildContext context,
+  ) {
+    showGeneralDialog(
       context: context,
-      type: AlertType.warning,
-      title: "Payment Alert",
-      desc: "You do not have sufficient amount to post load(Min 500).",
-      style: const AlertStyle(
-          descStyle: TextStyle(
-        fontSize: 17,
-      )),
-      buttons: [
-        DialogButton(
-          child: const Text(
-            "Cancel",
-            style: TextStyle(color: Colors.white, fontSize: 17),
+      barrierLabel: "Barrier",
+      barrierDismissible: true,
+      barrierColor: Colors.black.withOpacity(0.5),
+      transitionDuration: const Duration(milliseconds: 700),
+      pageBuilder: (_, __, ___) {
+        return Center(
+            child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+              Container(
+                  width: 330,
+                  margin: EdgeInsets.all(10.0),
+                  decoration: const BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                  ),
+                  padding: const EdgeInsets.only(
+                      top: 25, left: 25, right: 25, bottom: 20),
+                  child: Column(
+                    children: [
+                      const Text(
+                        "Payment Alert",
+                        style: TextStyle(
+                            fontWeight: FontWeight.w500, fontSize: 20),
+                      ),
+                      const SizedBox(
+                        height: 10,
+                      ),
+                      const Text(
+                        "You do not have sufficient amount for bid.",
+                        style: TextStyle(
+                            fontSize: 16, fontWeight: FontWeight.w400),
+                      ),
+                      const SizedBox(
+                        height: 20,
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Expanded(
+                            child: DialogButton(
+                              child: const Text(
+                                "Cancel",
+                                style: TextStyle(
+                                    color: Colors.white, fontSize: 17),
+                              ),
+                              onPressed: () {
+                                Navigator.pop(context);
+                                // Navigator.push(context,
+                                //     MaterialPageRoute(builder: (context) => TruckHomePage(2)));
+                              },
+                              color: Constants.alert,
+                            ),
+                          ),
+                          const SizedBox(
+                            width: 15,
+                          ),
+                          Expanded(
+                            child: DialogButton(
+                              child: const Text(
+                                "Add Money",
+                                style: TextStyle(
+                                    color: Colors.white, fontSize: 17),
+                              ),
+                              onPressed: () {
+                                Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) =>
+                                            ShipperHomePage(2)));
+                              },
+                              color: Constants.thaartheme,
+                            ),
+                          )
+                        ],
+                      )
+                    ],
+                  ))
+            ]));
+      },
+      transitionBuilder: (_, anim, __, child) {
+        Tween<Offset> tween;
+        if (anim.status == AnimationStatus.reverse) {
+          tween = Tween(begin: Offset(-1, 0), end: Offset.zero);
+        } else {
+          tween = Tween(begin: Offset(1, 0), end: Offset.zero);
+        }
+
+        return SlideTransition(
+          position: tween.animate(anim),
+          child: FadeTransition(
+            opacity: anim,
+            child: child,
           ),
-          onPressed: () => Navigator.pop(context),
-          // color: Colors.,
-        ),
-        DialogButton(
-          child: Text(
-            "Add Money",
-            style: TextStyle(color: Colors.white, fontSize: 17),
-          ),
-          onPressed: () {
-            Navigator.push(context,
-                MaterialPageRoute(builder: (context) => ShipperHomePage(2)));
-          },
-          color: Color(0XFF142438),
-        )
-      ],
-    ).show();
+        );
+      },
+    );
   }
 }

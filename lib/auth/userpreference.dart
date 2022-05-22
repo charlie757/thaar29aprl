@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:geocoding/geocoding.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:thaartransport/auth/register.dart';
 import 'package:thaartransport/utils/constants.dart';
 import 'package:thaartransport/widget/indicatiors.dart';
@@ -15,6 +18,56 @@ class _UserPreferenceState extends State<UserPreference> {
   bool isLoading = false;
   String SelectedValue = '';
   int value = 0;
+
+  String location = 'Press Button';
+  String Address = 'search';
+  String placeMark = '';
+  Future<Position> _getGeoLocationPosition() async {
+    bool serviceEnabled;
+    LocationPermission permission;
+    // Test if location services are enabled.
+    serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      await Geolocator.openLocationSettings();
+      return Future.error('Location services are disabled.');
+    }
+    permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) {
+        return Future.error('Location permissions are denied');
+      }
+    }
+    if (permission == LocationPermission.deniedForever) {
+      // Permissions are denied forever, handle appropriately.
+      return Future.error(
+          'Location permissions are permanently denied, we cannot request permissions.');
+    }
+    // When we reach here, permissions are granted and we can
+    // continue accessing the position of the device.
+    return await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.medium);
+  }
+
+  @override
+  void initState() {
+    super.initState();
+
+    getLocation();
+  }
+
+  getLocation() async {
+    Position position = await _getGeoLocationPosition();
+    location = 'Lat: ${position.latitude} , Long: ${position.longitude}';
+    List<Placemark> placemarks =
+        await placemarkFromCoordinates(position.latitude, position.longitude);
+    print(placemarks);
+    Placemark place = placemarks[3];
+    Address = '${place.locality}, ${place.country}';
+    print(Address);
+    setState(() {});
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -72,8 +125,12 @@ class _UserPreferenceState extends State<UserPreference> {
                         ? Color(0XFF142438)
                         : Constants.btninactive,
                     onPressed: () async {
+                      await getLocation();
                       if (value == 0) {
-                        showInSnackBar("Please select anyone!!", context);
+                        Fluttertoast.showToast(
+                            msg: 'Select your profile type',
+                            fontSize: 16,
+                            gravity: ToastGravity.CENTER);
                       } else {
                         setState(() {
                           isLoading = true;
@@ -84,7 +141,8 @@ class _UserPreferenceState extends State<UserPreference> {
                             context,
                             MaterialPageRoute(
                                 builder: (context) =>
-                                    UserRegistration(SelectedValue)));
+                                    UserRegistration(SelectedValue, Address),
+                                fullscreenDialog: true));
                         setState(() {
                           isLoading = false;
                           print(isLoading);

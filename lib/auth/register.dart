@@ -1,25 +1,23 @@
-import 'dart:io';
-import 'dart:ui';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:loading_overlay/loading_overlay.dart';
-import 'package:overlay_support/overlay_support.dart';
 import 'package:provider/provider.dart';
-import 'package:thaartransport/auth/login_view_modal.dart';
-import 'package:thaartransport/auth/profile_pic.dart';
 import 'package:thaartransport/auth/register_view_modal.dart';
-import 'package:thaartransport/auth/userregistrationotp.dart';
 import 'package:thaartransport/services/connectivity.dart';
 import 'package:thaartransport/utils/constants.dart';
 import 'package:thaartransport/utils/firebase.dart';
 import 'package:thaartransport/widget/inputtextfield.dart';
+import 'package:geocoding/geocoding.dart';
+import 'package:geolocator/geolocator.dart';
 
 class UserRegistration extends StatefulWidget {
   final String userPreference;
-  UserRegistration(this.userPreference);
+  final String address;
+  UserRegistration(this.userPreference, this.address);
 
   @override
   _UserRegistrationState createState() => _UserRegistrationState();
@@ -38,7 +36,6 @@ class _UserRegistrationState extends State<UserRegistration> {
   }
 
   List<DocumentSnapshot> docs = [];
-
   @override
   Widget build(BuildContext context) {
     final isOnline = Provider.of<ConnectivityProvider>(context).isOnline;
@@ -48,19 +45,20 @@ class _UserRegistrationState extends State<UserRegistration> {
         Provider.of<RegisterViewModel>(context);
     double width = MediaQuery.of(context).size.width;
     double height = MediaQuery.of(context).size.height;
-    return LoadingOverlay(
+    registerViewModel.city.text = widget.address;
+    return WillPopScope(
+      onWillPop: () async {
+        registerViewModel.clearController();
+        return true;
+      },
+      child: LoadingOverlay(
         isLoading: registerViewModel.isLoading,
-        progressIndicator: CircularProgressIndicator(
-            strokeWidth: 4,
-            color: Colors.blueGrey[900],
-            backgroundColor: Colors.blue),
-        opacity: 0.2,
-        color: Colors.white,
         child: Scaffold(
             appBar: AppBar(
               leading: InkWell(
                 onTap: () {
                   Navigator.pop(context);
+                  registerViewModel.clearController();
                 },
                 child: const Icon(
                   Icons.arrow_back,
@@ -72,15 +70,20 @@ class _UserRegistrationState extends State<UserRegistration> {
               centerTitle: true,
               title: Text(
                 "Thaar-Transport",
-                style: GoogleFonts.oswald(color: Colors.black),
+                style: GoogleFonts.charm(
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black,
+                    fontSize: 20),
               ),
             ),
             body: Padding(
                 padding: const EdgeInsets.only(
-                    top: 35, left: 15, right: 15, bottom: 10),
+                    top: 35, left: 20, right: 20, bottom: 10),
                 child: SingleChildScrollView(
                     physics: const ScrollPhysics(),
-                    child: _registrationForm(text, color, isOnline)))));
+                    child: _registrationForm(text, color, isOnline)))),
+      ),
+    );
   }
 
   Widget _registrationForm(final text, final color, bool isOnline) {
@@ -93,10 +96,10 @@ class _UserRegistrationState extends State<UserRegistration> {
           children: [
             inputTextField(registerViewModel.name, 'Enter Your Name',
                 'Your Name', false, TextInputType.name, [], () {}, (val) {
-              if (val!.isEmpty) {
-                return 'Please Enter Your Name';
-              }
-              return null;
+              // if (val!.isEmpty) {
+              //   return 'Please Enter Your Name';
+              // }
+              // return null;
             }),
             const SizedBox(
               height: 20,
@@ -110,9 +113,9 @@ class _UserRegistrationState extends State<UserRegistration> {
                     TextInputType.name,
                     [],
                     () {}, (val) {
-                    if (val!.isEmpty) {
-                      return 'Enter the company name';
-                    }
+                    // if (val!.isEmpty) {
+                    //   return 'Enter the company name';
+                    // }
                     return null;
                   })
                 : Container(),
@@ -133,12 +136,12 @@ class _UserRegistrationState extends State<UserRegistration> {
                 TextInputType.emailAddress,
                 [],
                 () {}, (val) {
-              if (val!.isEmpty) {
-                return 'Enter your email';
-              } else if (val.isValidEmail()) {
-                return null;
-              }
-              return 'Enter your correct email id';
+              // if (val!.isEmpty) {
+              //   return 'Enter your email';
+              // } else if (val.isValidEmail()) {
+              //   return null;
+              // }
+              // return 'Enter your correct email id';
             }),
             const SizedBox(
               height: 20,
@@ -147,13 +150,13 @@ class _UserRegistrationState extends State<UserRegistration> {
                 registerViewModel.city,
                 'Enter Your location',
                 'Your location',
-                false,
+                true,
                 TextInputType.streetAddress,
                 [],
                 () {}, (val) {
-              if (val!.isEmpty) {
-                return 'Enter your location';
-              }
+              // if (val!.isEmpty) {
+              //   return 'Enter your location';
+              // }
               return null;
             }),
             const SizedBox(
@@ -169,16 +172,15 @@ class _UserRegistrationState extends State<UserRegistration> {
                   textColor: Constants.btntextinactive,
                   onPressed: () async {
                     !isOnline
-                        ? showSimpleNotification(
-                            Text(
-                              text,
-                              style: const TextStyle(
-                                  color: Colors.white, fontSize: 20),
-                            ),
-                            slideDismiss: true,
-                            background: color,
-                          )
-                        : callFunction(registerViewModel);
+                        ? ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                            backgroundColor: Constants.kYellowColor,
+                            content: const Text(
+                              "No Internet",
+                              style: TextStyle(fontSize: 16),
+                            )))
+                        : widget.userPreference == "Transporator"
+                            ? calltransFunction(registerViewModel)
+                            : callshipperFunction(registerViewModel);
                   },
                   child: const Text(
                     "SUBMIT",
@@ -189,10 +191,64 @@ class _UserRegistrationState extends State<UserRegistration> {
         ));
   }
 
-  callFunction(RegisterViewModel registerViewModel) async {
+  calltransFunction(RegisterViewModel registerViewModel) async {
+    String patttern =
+        r'^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$';
+    RegExp regExp = new RegExp(patttern);
+
     final isValid = formKey.currentState!.validate();
-    if (!isValid) {
-      return;
+    if (registerViewModel.name.text.isEmpty) {
+      EasyLoading.showToast("Enter your name");
+    } else if (registerViewModel.companyName.text.isEmpty) {
+      EasyLoading.showToast("Enter your company name");
+    } else if (registerViewModel.phoneNumber.text.isEmpty ||
+        registerViewModel.phoneNumber.text.length < 10) {
+      EasyLoading.showToast("Enter your phone number");
+    } else if (registerViewModel.email.value.text.isEmpty ||
+        !regExp.hasMatch(registerViewModel.email.text)) {
+      EasyLoading.showToast("Enter your email address");
+    } else if (registerViewModel.city.text.isEmpty) {
+      EasyLoading.showToast("Enter your location");
+    } else {
+      final result = await usersRef
+          .where('usernumber',
+              isEqualTo: '+91${registerViewModel.phoneNumber.text}')
+          .get()
+          .then((value) {
+        docs = value.docs;
+        print(docs.length);
+        if (docs.length == 1) {
+          ScaffoldMessenger.of(context).showSnackBar((const SnackBar(
+              content: Text(
+            "Already registered",
+            style: TextStyle(fontSize: 16),
+          ))));
+          print("exist");
+        } else {
+          registerViewModel.login(context, widget.userPreference);
+        }
+      });
+
+      print("Added");
+    }
+  }
+
+  callshipperFunction(RegisterViewModel registerViewModel) async {
+    String patttern =
+        r'^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$';
+    RegExp regExp = new RegExp(patttern);
+
+    final isValid = formKey.currentState!.validate();
+    if (registerViewModel.name.text.isEmpty) {
+      EasyLoading.showToast("Enter your name");
+    } else if (registerViewModel.phoneNumber.text.isEmpty ||
+        registerViewModel.phoneNumber.text.length < 10) {
+      EasyLoading.showToast("Enter your phone number");
+    } else if (registerViewModel.email.value.text.isEmpty ||
+        !regExp.hasMatch(registerViewModel.email.text)) {
+      EasyLoading.showToast("Enter your email address");
+    } else if (registerViewModel.city.text.isEmpty) {
+      EasyLoading.showToast("Enter your location");
     } else {
       final result = await usersRef
           .where('usernumber',
@@ -232,6 +288,7 @@ class _UserRegistrationState extends State<UserRegistration> {
             labelText: 'Your Number',
             isDense: true,
             hintText: "Enter your number",
+            labelStyle: TextStyle(color: Colors.black),
             focusedBorder: OutlineInputBorder(
                 borderSide:
                     BorderSide(color: Constants.textfieldborder, width: 1)),
@@ -239,12 +296,12 @@ class _UserRegistrationState extends State<UserRegistration> {
                 borderSide:
                     BorderSide(width: 1, color: Constants.textfieldborder))),
         validator: (val) {
-          if (val!.isEmpty) {
-            return 'Enter your phone number';
-          } else if (val.length < 10) {
-            return "Please enter 10 number";
-          }
-          return null;
+          // if (val!.isEmpty) {
+          //   return 'Enter your phone number';
+          // } else if (val.length < 10) {
+          //   return "Please enter 10 number";
+          // }
+          // return null;
         });
   }
 }

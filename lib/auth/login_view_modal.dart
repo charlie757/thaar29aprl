@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 import 'package:thaartransport/auth/otp.dart';
@@ -91,13 +92,15 @@ class LoginViewModal extends ChangeNotifier {
 
   login(BuildContext context) async {
     showDialogBox = true;
-
+    EasyLoading.show();
     notifyListeners();
+
     await _auth.verifyPhoneNumber(
       phoneNumber: "+91" + phoneController.text.toString().trim(),
       timeout: Duration(seconds: timer),
       verificationCompleted: (phoneAuthCredential) async {
         showDialogBox = false;
+        EasyLoading.dismiss();
         notifyListeners();
       },
       verificationFailed: (verificationFailed) async {
@@ -107,6 +110,7 @@ class LoginViewModal extends ChangeNotifier {
           style: TextStyle(fontSize: 16),
         ))));
         showDialogBox = false;
+        EasyLoading.dismiss();
         notifyListeners();
       },
       codeSent: (verificationId, resendingToken) async {
@@ -125,6 +129,7 @@ class LoginViewModal extends ChangeNotifier {
         );
         this.verificationId = verificationId;
         showDialogBox = false;
+        EasyLoading.dismiss();
         notifyListeners();
       },
       codeAutoRetrievalTimeout: (verificationId) async {},

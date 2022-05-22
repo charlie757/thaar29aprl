@@ -1,6 +1,7 @@
 // ignore_for_file: prefer_const_constructors, non_constant_identifier_names
 
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:lottie/lottie.dart';
 import 'package:rflutter_alert/rflutter_alert.dart';
 import 'package:thaartransport/NEW/postloaduser/bidresponse/bidresponse.dart';
@@ -81,7 +82,10 @@ class _OrderDataState extends State<OrderData> {
                                 ],
                               ),
                             )
-                          : widget.posts.loadstatus == "Expired"
+                          : widget.posts.loadorderstatus != "InTransit" &&
+                                  widget.posts.loadorderstatus != "Completed" &&
+                                  widget.posts.loadorderstatus == "Active" &&
+                                  widget.posts.loadstatus == "Expired"
                               ? Container(
                                   child: Row(
                                     children: [
@@ -103,7 +107,7 @@ class _OrderDataState extends State<OrderData> {
                                     ],
                                   ),
                                 )
-                              : widget.posts.loadstatus == "InTransit"
+                              : widget.posts.loadorderstatus == "InTransit"
                                   ? Container(
                                       child: Row(
                                         children: [
@@ -151,6 +155,7 @@ class _OrderDataState extends State<OrderData> {
                   const Divider(
                     color: Colors.black,
                   ),
+
                   Container(
                     child: Column(
                       children: [
@@ -160,72 +165,184 @@ class _OrderDataState extends State<OrderData> {
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Row(
-                                  children: [
-                                    Image.asset(
-                                      'assets/images/product.png',
-                                      width: 20,
-                                      height: 20,
-                                    ),
-                                    SizedBox(
-                                      width: width * 0.02,
-                                    ),
-                                    Text("Material: $material"),
-                                  ],
+                                Container(
+                                  child: Row(
+                                    children: [
+                                      Image.asset(
+                                        'assets/images/product.png',
+                                        width: 20,
+                                        height: 20,
+                                      ),
+                                      SizedBox(
+                                        width: 10,
+                                      ),
+                                      Text(
+                                        material,
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.w500,
+                                            fontSize: 18),
+                                      ),
+                                    ],
+                                  ),
                                 ),
                                 SizedBox(
-                                  height: height * 0.01,
+                                  height: 10,
                                 ),
-                                Row(
-                                  children: [
-                                    Image.asset(
-                                      'assets/images/quantity.png',
-                                      width: 20,
-                                      height: 20,
-                                    ),
-                                    SizedBox(
-                                      width: width * 0.02,
-                                    ),
-                                    Text("Quantity: $quantity Tons"),
-                                  ],
-                                ),
-                                const SizedBox(
-                                  height: 8,
-                                ),
+                                Container(
+                                  child: Row(
+                                    children: [
+                                      Image.asset(
+                                        'assets/images/quantity.png',
+                                        width: 25,
+                                        height: 25,
+                                      ),
+                                      SizedBox(
+                                        width: 10,
+                                      ),
+                                      Text(
+                                        quantity,
+                                        style: TextStyle(
+                                            fontSize: 18,
+                                            fontWeight: FontWeight.w400),
+                                      )
+                                    ],
+                                  ),
+                                )
                               ],
                             ),
                             Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(
-                                  expectedPrice,
-                                  style: TextStyle(
-                                      fontSize: 25,
-                                      fontWeight: FontWeight.bold),
+                                Row(
+                                  children: [
+                                    Image.asset(
+                                      'assets/images/rupee-indian.png',
+                                      height: 20,
+                                      width: 20,
+                                      color: Colors.blue,
+                                    ),
+                                    SizedBox(
+                                      width: 10,
+                                    ),
+                                    Text(expectedPrice,
+                                        style: GoogleFonts.lato(
+                                            fontSize: 22,
+                                            fontWeight: FontWeight.w800)),
+                                  ],
                                 ),
-                                Text(
-                                  priceUnit,
-                                  style: TextStyle(fontSize: 15),
+                                Row(
+                                  children: [
+                                    Text(priceUnit == 'tonne' ? " per" : '',
+                                        style: TextStyle(fontSize: 18)),
+                                    SizedBox(
+                                      width: width * 0.02,
+                                    ),
+                                    Text(priceUnit,
+                                        style: GoogleFonts.lato(fontSize: 18)),
+                                  ],
                                 ),
                               ],
-                            ),
+                            )
                           ],
+                        ),
+                        SizedBox(
+                          height: 10,
                         ),
                         Row(
                           children: [
-                            Image.asset(
-                              'assets/images/payment.png',
-                              width: 20,
-                              height: 20,
+                            Text(
+                              'Payment Mode:',
+                              style: TextStyle(
+                                  fontSize: 16, fontWeight: FontWeight.w300),
                             ),
                             SizedBox(
-                              width: width * 0.02,
+                              width: 10,
                             ),
-                            Text('Payment Mode: $PaymentMode'),
+                            Text(
+                              PaymentMode,
+                              style: TextStyle(
+                                  fontSize: 20, fontWeight: FontWeight.w500),
+                            )
                           ],
-                        ),
+                        )
                       ],
                     ),
-                  ),
+                  )
+                  // Container(
+                  //   child: Column(
+                  //     children: [
+                  //       Row(
+                  //         mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  //         children: [
+                  //           Column(
+                  //             crossAxisAlignment: CrossAxisAlignment.start,
+                  //             children: [
+                  //               Row(
+                  //                 children: [
+                  //                   Image.asset(
+                  //                     'assets/images/product.png',
+                  //                     width: 20,
+                  //                     height: 20,
+                  //                   ),
+                  //                   SizedBox(
+                  //                     width: width * 0.02,
+                  //                   ),
+                  //                   Text("Material: $material"),
+                  //                 ],
+                  //               ),
+                  //               SizedBox(
+                  //                 height: height * 0.01,
+                  //               ),
+                  //               Row(
+                  //                 children: [
+                  //                   Image.asset(
+                  //                     'assets/images/quantity.png',
+                  //                     width: 20,
+                  //                     height: 20,
+                  //                   ),
+                  //                   SizedBox(
+                  //                     width: width * 0.02,
+                  //                   ),
+                  //                   Text("Quantity: $quantity Tons"),
+                  //                 ],
+                  //               ),
+                  //               const SizedBox(
+                  //                 height: 8,
+                  //               ),
+                  //             ],
+                  //           ),
+                  //           Column(
+                  //             children: [
+                  //               Text(
+                  //                 expectedPrice,
+                  //                 style: TextStyle(
+                  //                     fontSize: 25,
+                  //                     fontWeight: FontWeight.bold),
+                  //               ),
+                  //               Text(
+                  //                 priceUnit,
+                  //                 style: TextStyle(fontSize: 15),
+                  //               ),
+                  //             ],
+                  //           ),
+                  //         ],
+                  //       ),
+                  //       Row(
+                  //         children: [
+                  //           Image.asset(
+                  //             'assets/images/payment.png',
+                  //             width: 20,
+                  //             height: 20,
+                  //           ),
+                  //           SizedBox(
+                  //             width: width * 0.02,
+                  //           ),
+                  //           Text('Payment Mode: $PaymentMode'),
+                  //         ],
+                  //       ),
+                  //     ],
+                  //   ),
+                  // ),
                 ],
               ),
             ),
@@ -233,7 +350,12 @@ class _OrderDataState extends State<OrderData> {
           SizedBox(
             height: height * 0.02,
           ),
-          widget.posts.loadstatus == "Expired" ? repostButton() : Container(),
+          widget.posts.loadorderstatus != "InTransit" &&
+                  widget.posts.loadorderstatus != "Completed" &&
+                  widget.posts.loadorderstatus == "Active" &&
+                  widget.posts.loadstatus == "Expired"
+              ? repostButton()
+              : Container(),
           tabBar()
         ],
       ),
@@ -241,47 +363,41 @@ class _OrderDataState extends State<OrderData> {
   }
 
   Widget repostButton() {
-    return FlatButton(
-        color: Colors.grey,
-        textColor: Colors.white,
-        onPressed: () {
-          widget.posts.loadorderstatus == "InTransit" ||
-                  widget.posts.loadorderstatus == "Completed"
-              ? Alert(
-                  context: context,
-                  title: "In-Transit",
-                  desc: "Your load is In-Transit.",
-                  buttons: [
-                      DialogButton(
-                          color: Color(0XFF142438),
-                          child: Text(
-                            "Ok",
-                            style: TextStyle(color: Colors.white),
-                          ),
-                          onPressed: () {
-                            Navigator.pop(context);
-                          })
-                    ]).show()
-              : Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => UpdateLoad(
-                            posts: widget.posts,
-                          )));
-        },
-        child: Container(
-          alignment: Alignment.center,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: const [
-              Icon(Icons.refresh),
-              SizedBox(
-                width: 5,
-              ),
-              Text("Repost Load")
-            ],
-          ),
-        ));
+    return Container(
+      padding: EdgeInsets.only(left: 10, right: 10),
+      width: MediaQuery.of(context).size.width,
+      height: 40,
+      child: FlatButton.icon(
+          textColor: Colors.white,
+          color: Colors.grey,
+          onPressed: () {
+            widget.posts.loadorderstatus == "InTransit" ||
+                    widget.posts.loadorderstatus == "Completed"
+                ? Alert(
+                    context: context,
+                    title: "In-Transit",
+                    desc: "Your load is In-Transit.",
+                    buttons: [
+                        DialogButton(
+                            color: Color(0XFF142438),
+                            child: Text(
+                              "Ok",
+                              style: TextStyle(color: Colors.white),
+                            ),
+                            onPressed: () {
+                              Navigator.pop(context);
+                            })
+                      ]).show()
+                : Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => UpdateLoad(
+                              posts: widget.posts,
+                            )));
+          },
+          icon: Icon(Icons.refresh),
+          label: Text("Repost Load")),
+    );
   }
 
   Widget WhatsAppButton() {

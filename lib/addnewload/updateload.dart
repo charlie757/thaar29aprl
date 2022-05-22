@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:jiffy/jiffy.dart';
 import 'package:overlay_support/overlay_support.dart';
 import 'package:provider/provider.dart';
@@ -452,6 +453,7 @@ class _UpdateLoadState extends State<UpdateLoad> {
                   height: height * 0.03,
                 ),
                 RaisedButton(
+                  color: Constants.thaartheme,
                   onPressed: () async {
                     FormState? form = _formKey.currentState;
 
@@ -483,7 +485,7 @@ class _UpdateLoadState extends State<UpdateLoad> {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: const [
-                          Text("Next",
+                          Text("SUBMIT",
                               style:
                                   TextStyle(fontSize: 18, color: Colors.white)),
                           Icon(
@@ -517,7 +519,7 @@ class _UpdateLoadState extends State<UpdateLoad> {
         builder: (context) {
           return Container(
             color: Color(0xFF737373),
-            height: 250,
+            // height: 250,
             child: Container(
               child: _buildBottomNavigationMenu(),
               decoration: BoxDecoration(
@@ -544,16 +546,35 @@ class _UpdateLoadState extends State<UpdateLoad> {
             child: Container(
                 height: 3.0, width: 40.0, color: const Color(0xFF32335C))),
         const SizedBox(
-          height: 30,
+          height: 20,
         ),
         Container(
-            margin: EdgeInsets.only(left: 15),
-            child: const Text("Select your price Unit",
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                ))),
+            margin: EdgeInsets.only(left: 15, right: 15),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  "Select your price Unit",
+                  style: GoogleFonts.ibmPlexSerif(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                InkWell(
+                    onTap: () {
+                      Navigator.pop(context);
+                    },
+                    child: Icon(Icons.close, size: 25, color: Colors.black))
+              ],
+            )),
+        SizedBox(
+          height: 15,
+        ),
         RadioListTile(
-          title: Text("Fixed price"),
+          title: Text(
+            "Fixed price",
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
+          ),
           value: 'fixed price',
           groupValue: group,
           onChanged: (value) {
@@ -563,7 +584,10 @@ class _UpdateLoadState extends State<UpdateLoad> {
           },
         ),
         RadioListTile(
-          title: Text("Tonne"),
+          title: Text(
+            "Tonne",
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
+          ),
           value: 'tonne',
           groupValue: group,
           onChanged: (value) {
@@ -571,6 +595,9 @@ class _UpdateLoadState extends State<UpdateLoad> {
             updatePriceunit.text = value;
             Navigator.pop(context);
           },
+        ),
+        SizedBox(
+          height: 30,
         )
       ],
     );
@@ -586,7 +613,7 @@ class _UpdateLoadState extends State<UpdateLoad> {
                   bottom: MediaQuery.of(context).viewInsets.bottom),
               child: Container(
                 color: Color(0xFF737373),
-                height: 300,
+                // height: 300,
                 child: Container(
                   child: _buildSheet(),
                   decoration: BoxDecoration(
@@ -617,13 +644,36 @@ class _UpdateLoadState extends State<UpdateLoad> {
             height: 30,
           ),
           Container(
-              margin: EdgeInsets.only(left: 15),
-              child: const Text("Select payment mode",
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                  ))),
+              margin: EdgeInsets.only(left: 15, right: 15),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    "Select payment mode",
+                    style: GoogleFonts.ibmPlexSerif(
+                      fontSize: 20,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  InkWell(
+                      onTap: () {
+                        Navigator.pop(context);
+                      },
+                      child: Icon(
+                        Icons.close,
+                        size: 25,
+                        color: Colors.black,
+                      ))
+                ],
+              )),
+          SizedBox(
+            height: 15,
+          ),
           RadioListTile(
-            title: Text("Advance pay"),
+            title: Text(
+              "Advance pay",
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
+            ),
             value: "Advance pay",
             selected: _value,
             groupValue: val,
@@ -648,7 +698,10 @@ class _UpdateLoadState extends State<UpdateLoad> {
               const SizedBox(
                 width: 10,
               ),
-              const Text('Enter Advance %(Optional)'),
+              const Text(
+                'Enter Advance %(Optional)',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
+              ),
               const SizedBox(
                 width: 10,
               ),
@@ -673,8 +726,14 @@ class _UpdateLoadState extends State<UpdateLoad> {
               ),
             ],
           ),
+          SizedBox(
+            height: 15,
+          ),
           RadioListTile(
-            title: Text("ToPay"),
+            title: Text(
+              "ToPay",
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
+            ),
             value: "ToPay",
             groupValue: val,
             selected: _value,
@@ -692,33 +751,43 @@ class _UpdateLoadState extends State<UpdateLoad> {
               print(val.toString());
             },
           ),
-          RaisedButton(
-              color: Constants.btnBG,
-              textColor: Constants.white,
-              onPressed: () async {
-                if (val == "Advance pay" && postadvancecont.text.isEmpty) {
-                  Fluttertoast.showToast(
-                      gravity: ToastGravity.CENTER,
-                      backgroundColor: Colors.cyan,
-                      msg: "Advance pay should not be blank");
-                } else if (val == "Advance pay" &&
-                    postadvancecont.text.isNotEmpty) {
-                  updatePaymentmode.text =
-                      "${postadvancecont.text}% " + val.toString();
-                  Navigator.pop(context);
-                } else {
-                  updatePaymentmode.text = val.toString();
-                  Navigator.pop(context);
-                }
-              },
-              child: Container(
-                height: 45,
-                alignment: Alignment.center,
-                width: MediaQuery.of(context).size.width,
-                child: Text(
-                  "Next",
-                ),
-              ))
+          SizedBox(
+            height: 20,
+          ),
+          Padding(
+            padding: const EdgeInsets.only(left: 8, right: 8),
+            child: RaisedButton(
+                color: Constants.btnBG,
+                textColor: Constants.white,
+                onPressed: () async {
+                  if (val == "Advance pay" && postadvancecont.text.isEmpty) {
+                    Fluttertoast.showToast(
+                        gravity: ToastGravity.CENTER,
+                        backgroundColor: Colors.cyan,
+                        msg: "Advance pay should not be blank");
+                  } else if (val == "Advance pay" &&
+                      postadvancecont.text.isNotEmpty) {
+                    updatePaymentmode.text =
+                        "${postadvancecont.text}% " + val.toString();
+                    Navigator.pop(context);
+                  } else {
+                    updatePaymentmode.text = val.toString();
+                    Navigator.pop(context);
+                  }
+                },
+                child: Container(
+                  height: 45,
+                  alignment: Alignment.center,
+                  width: MediaQuery.of(context).size.width,
+                  child: Text(
+                    "Next",
+                    style: TextStyle(fontSize: 18),
+                  ),
+                )),
+          ),
+          SizedBox(
+            height: 30,
+          )
         ],
       );
     });

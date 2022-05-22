@@ -166,3 +166,32 @@ class _ExpireTimeState extends State<ExpireTime> {
     );
   }
 }
+
+// exports.sendNotifications = functions.firestore.
+//     document("thaarbidsdata/{thaarbiddata}/tokens/{token}").
+//     onCreate(async (snapshot, context) => {
+//       try {
+//         const notificationdocument = snapshot.data();
+//         const uid = context.params.user;
+//         const notificationMessage = notificationdocument.rate;
+//         const notificationTitle = notificationdocument.biduserid;
+//         const userDoc = await admin.firestore().collection("thaarbidsdata").
+//             doc(uid).collection("tokens").doc(uid).get();
+//         const Tokens = userDoc.data();
+
+//         let fcmToken;
+//         if (Tokens) {
+//           fcmToken = Tokens.fcmToken;
+//         }
+//         const message = {
+//           "notification": {
+//             title: notificationTitle,
+//             body: notificationMessage,
+//           },
+//           "token": fcmToken,
+//         };
+//         admin.messaging().send(message);
+//       } catch (error) {
+//         console.log(error);
+//       }
+//     });

@@ -8,8 +8,6 @@ import 'package:thaartransport/screens/mainsceen/slideitem.dart';
 import 'package:thaartransport/utils/constants.dart';
 
 class GettingStarted extends StatefulWidget {
-  const GettingStarted({Key? key}) : super(key: key);
-
   @override
   _GettingStartedState createState() => _GettingStartedState();
 }
@@ -110,7 +108,9 @@ class _GettingStartedState extends State<GettingStarted> {
                           Navigator.push(
                               context,
                               MaterialPageRoute(
-                                  builder: (context) => EnterNumber()));
+                                builder: (context) => EnterNumber(),
+                                fullscreenDialog: true,
+                              ));
                         },
                         child: const Text(
                           "CONTINUE",

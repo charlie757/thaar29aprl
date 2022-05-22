@@ -1,7 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:rflutter_alert/rflutter_alert.dart';
 import 'package:thaartransport/admin/fullimage.dart';
 import 'package:thaartransport/modal/usermodal.dart';
+import 'package:thaartransport/utils/constants.dart';
 import 'package:thaartransport/utils/firebase.dart';
 import 'package:thaartransport/widget/flickerwidget.dart';
 
@@ -31,9 +34,9 @@ class _documentsState extends State<documents> {
               child: const Text("Verify")),
           TextButton(
               onPressed: () async {
-                showSheet();
+                rependingKyc(context);
               },
-              child: const Text("Non-ver"))
+              child: const Text("Need doc"))
         ],
       ),
       body: Padding(
@@ -330,6 +333,129 @@ class _documentsState extends State<documents> {
                   });
             }),
       ),
+    );
+  }
+
+  rependingKyc(
+    BuildContext context,
+  ) {
+    showGeneralDialog(
+      context: context,
+      barrierLabel: "Barrier",
+      barrierDismissible: false,
+      barrierColor: Colors.black.withOpacity(0.5),
+      transitionDuration: const Duration(milliseconds: 700),
+      pageBuilder: (_, __, ___) {
+        return Center(
+            child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+              Container(
+                  width: 330,
+                  margin: EdgeInsets.all(10.0),
+                  decoration: const BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                  ),
+                  padding: const EdgeInsets.only(
+                      top: 25, left: 25, right: 25, bottom: 20),
+                  child: Column(
+                    children: [
+                      const Text(
+                        "Repending kyc status",
+                        style: TextStyle(
+                            fontWeight: FontWeight.w500, fontSize: 20),
+                      ),
+                      const SizedBox(
+                        height: 10,
+                      ),
+                      Card(
+                        color: Colors.grey[200],
+                        child: Padding(
+                          padding: const EdgeInsets.only(left: 10, right: 10),
+                          child: TextFormField(
+                            controller: controller,
+                            inputFormatters: [],
+                            maxLength: 100,
+                            keyboardType: TextInputType.multiline,
+                            maxLines: 5,
+                            decoration: const InputDecoration(
+                              border: InputBorder.none,
+                              disabledBorder: InputBorder.none,
+                              focusedBorder: InputBorder.none,
+                              hintText: "Write something..!",
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(
+                        height: 20,
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Expanded(
+                            child: DialogButton(
+                              child: const Text(
+                                "Cancel",
+                                style: TextStyle(
+                                    color: Colors.white, fontSize: 17),
+                              ),
+                              onPressed: () {
+                                Navigator.pop(context);
+                                // Navigator.push(context,
+                                //     MaterialPageRoute(builder: (context) => TruckHomePage(2)));
+                              },
+                              color: Constants.alert,
+                            ),
+                          ),
+                          const SizedBox(
+                            width: 15,
+                          ),
+                          Expanded(
+                            child: DialogButton(
+                              child: const Text(
+                                "UPDATE",
+                                style: TextStyle(
+                                    color: Colors.white, fontSize: 17),
+                              ),
+                              onPressed: () async {
+                                if (controller.text.isEmpty) {
+                                  EasyLoading.showToast(
+                                      "Please write kyc status");
+                                } else {
+                                  await usersRef.doc(widget.ownerid).update({
+                                    'kycmsg': controller.text,
+                                    'userkycstatus': 'rePending'
+                                  });
+                                }
+                              },
+                              color: Constants.thaartheme,
+                            ),
+                          )
+                        ],
+                      )
+                    ],
+                  ))
+            ]));
+      },
+      transitionBuilder: (_, anim, __, child) {
+        Tween<Offset> tween;
+        if (anim.status == AnimationStatus.reverse) {
+          tween = Tween(begin: Offset(-1, 0), end: Offset.zero);
+        } else {
+          tween = Tween(begin: Offset(1, 0), end: Offset.zero);
+        }
+
+        return SlideTransition(
+          position: tween.animate(anim),
+          child: FadeTransition(
+            opacity: anim,
+            child: child,
+          ),
+        );
+      },
     );
   }
 

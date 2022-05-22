@@ -27,7 +27,8 @@ class inputTextField extends StatelessWidget {
         decoration: InputDecoration(
             labelText: lblText,
             isDense: true,
-            contentPadding: EdgeInsets.all(15),
+            labelStyle: const TextStyle(color: Colors.black),
+            contentPadding: const EdgeInsets.all(15),
             hintText: hintText,
             focusedBorder: OutlineInputBorder(
                 borderSide: BorderSide(

@@ -1,7 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import '../main.dart';
 
@@ -61,19 +60,19 @@ class NotificationHandling {
       RemoteNotification notification = message.notification!;
       AndroidNotification? androidNotification = message.notification?.android;
       if (androidNotification != null) {
-        showDialog(
-            context: context,
-            builder: (_) {
-              return AlertDialog(
-                title: Text(notification.title!),
-                content: SingleChildScrollView(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [Text(notification.body!)],
-                  ),
-                ),
-              );
-            });
+        // showDialog(
+        //     context: context,
+        //     builder: (_) {
+        //       return AlertDialog(
+        //         title: Text(notification.title!),
+        //         content: SingleChildScrollView(
+        //           child: Column(
+        //             crossAxisAlignment: CrossAxisAlignment.start,
+        //             children: [Text(notification.body!)],
+        //           ),
+        //         ),
+        //       );
+        // });
       }
     });
   }

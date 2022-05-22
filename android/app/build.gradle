@@ -22,8 +22,8 @@ project.ext {
     KEYSTORE_STORE_PASSWORD = keystoreProperties['storePassword']
     KEYSTORE_KEY_ALIAS = keystoreProperties['keyAlias']
     KEYSTORE_KEY_PASSWORD = keystoreProperties['keyPassword']
-    VERSION_CODE = configured ? keystoreProperties['versionCode'].toInteger() : 4
-    VERSION_NAME = configured ? keystoreProperties['versionName'] : "1.0.1"
+    VERSION_CODE = configured ? keystoreProperties['versionCode'].toInteger() : 7
+    VERSION_NAME = configured ? keystoreProperties['versionName'] : "1.0.5"
 }
 
 if (project.APP_ID == "thaar.app.thaartransport") {
@@ -42,12 +42,12 @@ if (flutterRoot == null) {
 
 def flutterVersionCode = localProperties.getProperty('flutter.versionCode')
 if (flutterVersionCode == null) {
-    flutterVersionCode = '4'
+    flutterVersionCode = '8'
 }
 
 def flutterVersionName = localProperties.getProperty('flutter.versionName')
 if (flutterVersionName == null) {
-    flutterVersionName = '1.0.1'
+    flutterVersionName = '1.0.5'
 }
 
 apply plugin: 'com.android.application'

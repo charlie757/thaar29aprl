@@ -2,11 +2,10 @@ import 'dart:io';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:thaartransport/auth/profile_pic.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:thaartransport/auth/userregistrationotp.dart';
 import 'package:thaartransport/services/auth_service.dart';
-import 'package:thaartransport/services/userservice.dart';
-import 'package:thaartransport/utils/firebase.dart';
 
 class RegisterViewModel extends ChangeNotifier {
   GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
@@ -29,6 +28,14 @@ class RegisterViewModel extends ChangeNotifier {
   bool statusotp = false;
   int charLength = 0;
 
+  clearController() {
+    name.clear();
+    companyName.clear();
+    email.clear();
+    phoneNumber.clear();
+    city.clear();
+  }
+
   onChangedOtp(String value) {
     charLength = value.length;
     notifyListeners();
@@ -47,7 +54,7 @@ class RegisterViewModel extends ChangeNotifier {
 
   login(BuildContext context, String userType) async {
     isLoading = true;
-
+    EasyLoading.show();
     notifyListeners();
     await _auth.verifyPhoneNumber(
       phoneNumber: "+91" + phoneNumber.text.toString().trim(),
@@ -57,12 +64,13 @@ class RegisterViewModel extends ChangeNotifier {
         notifyListeners();
       },
       verificationFailed: (verificationFailed) async {
-        ScaffoldMessenger.of(context).showSnackBar((const SnackBar(
-            content: Text(
-          "Please Enter the correct number",
-          style: TextStyle(fontSize: 16),
-        ))));
+        Fluttertoast.showToast(
+            msg: "Invalid phone number",
+            backgroundColor: Colors.red,
+            textColor: Colors.white);
         isLoading = false;
+
+        EasyLoading.dismiss();
         notifyListeners();
       },
       codeSent: (verificationId, resendingToken) async {
@@ -80,6 +88,8 @@ class RegisterViewModel extends ChangeNotifier {
                     userType)));
         this.verificationId = verificationId;
         isLoading = false;
+
+        EasyLoading.dismiss();
         notifyListeners();
       },
       codeAutoRetrievalTimeout: (verificationId) async {},

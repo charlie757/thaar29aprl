@@ -93,12 +93,24 @@ class _TrucksState extends State<Trucks> {
     });
   }
 
+  totalbid() async {
+    await bidRef
+        .where('truckownerid', isEqualTo: widget.ownerid)
+        .get()
+        .then((value) {
+      setState(() {
+        totalbiddoc = value.docs;
+      });
+    });
+  }
+
   List activedoc = [];
   List expiredoc = [];
   List acceptbiddoc = [];
   List rejectbiddoc = [];
   List waitingbiddoc = [];
   List completebiddoc = [];
+  List totalbiddoc = [];
 
   @override
   void initState() {
@@ -109,6 +121,7 @@ class _TrucksState extends State<Trucks> {
     rejectedBid();
     waitingbid();
     completedBid();
+    totalbid();
   }
 
   @override
@@ -134,6 +147,7 @@ class _TrucksState extends State<Trucks> {
                 child: cardWidget('Documents', widget.status)),
             cardWidget('Active Truck', activedoc.length.toString()),
             cardWidget('Expire Truck', expiredoc.length.toString()),
+            cardWidget('Total Bid', totalbiddoc.length.toString()),
             cardWidget('Bid Accept', acceptbiddoc.length.toString()),
             cardWidget('Bid Reject', rejectbiddoc.length.toString()),
             cardWidget('Bid Complete', completebiddoc.length.toString()),

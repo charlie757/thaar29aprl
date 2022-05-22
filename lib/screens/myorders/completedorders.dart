@@ -1,6 +1,8 @@
+import 'package:blinking_text/blinking_text.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:thaartransport/addnewload/postmodal.dart';
@@ -13,6 +15,8 @@ import 'package:thaartransport/services/userservice.dart';
 import 'package:thaartransport/utils/firebase.dart';
 import 'package:thaartransport/widget/flickerwidget.dart';
 import 'package:thaartransport/widget/internetmsg.dart';
+
+import '../../utils/constants.dart';
 
 class CompletedOrders extends StatefulWidget {
   const CompletedOrders({Key? key}) : super(key: key);
@@ -115,16 +119,13 @@ class _CompletedOrdersState extends State<CompletedOrders> {
               UserModel.fromJson(snapshot.data!.data() as Map<String, dynamic>);
           return InkWell(
             onTap: () {
-              Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) =>
-                          Chat(users, posts, bidpost, truckModal)));
+              fetchcompletedata(bidpost);
+              _viewcompleted(bidpost);
             },
             child: Card(
                 // color: Colors.red,
 
-                elevation: 4,
+                elevation: 1,
                 child: Column(
                   children: [
                     Container(
@@ -134,64 +135,61 @@ class _CompletedOrdersState extends State<CompletedOrders> {
                       child: Column(
                         children: [
                           Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Text(posts.loadposttime!.split(',')[1] +
-                                  posts.loadposttime!.split(',')[2])
+                              Container(
+                                child: Row(
+                                  children: [
+                                    const Text(
+                                      "posted on:",
+                                      style: TextStyle(fontSize: 13),
+                                    ),
+                                    const SizedBox(
+                                      width: 2,
+                                    ),
+                                    Text(posts.loadposttime!.split(',')[1] +
+                                        posts.loadposttime!.split(',')[2]),
+                                  ],
+                                ),
+                              ),
                             ],
                           ),
                           SizedBox(height: height * 0.02),
                           Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
+                            // mainAxisAlignment: MainAxisAlignment.center,
                             children: [
+                              const Icon(
+                                Icons.circle,
+                                size: 13,
+                                color: Colors.green,
+                              ),
+                              const SizedBox(
+                                width: 15,
+                              ),
                               Text(
                                 posts.sourcelocation!,
-                                style: GoogleFonts.lato(
-                                    fontWeight: FontWeight.bold, fontSize: 16),
-                              ),
+                                style: const TextStyle(fontSize: 17),
+                              )
                             ],
                           ),
-                          const Icon(Icons.arrow_downward),
+                          const SizedBox(
+                            height: 7,
+                          ),
                           Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
                             children: [
+                              const Icon(
+                                Icons.circle,
+                                size: 13,
+                                color: Colors.blue,
+                              ),
+                              const SizedBox(
+                                width: 15,
+                              ),
                               Text(
                                 posts.destinationlocation!,
-                                style: GoogleFonts.lato(
-                                    fontWeight: FontWeight.bold, fontSize: 16),
-                              ),
+                                style: const TextStyle(fontSize: 17),
+                              )
                             ],
                           ),
-
-                          // Row(
-                          //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          //   crossAxisAlignment: CrossAxisAlignment.start,
-                          //   children: [
-                          //     Column(
-                          //       children: [
-                          //         Text(
-                          //           posts.sourcelocation!.split(',')[0],
-                          //           style: GoogleFonts.lato(
-                          //               fontWeight: FontWeight.bold,
-                          //               fontSize: 16),
-                          //         ),
-                          //         Text(posts.sourcelocation!.split(',')[1]),
-                          //       ],
-                          //     ),
-                          //     const Icon(Icons.arrow_right_alt_outlined),
-                          //     Column(
-                          //       children: [
-                          //         Text(
-                          //           posts.destinationlocation!.split(',')[0],
-                          //           style: GoogleFonts.lato(
-                          //               fontWeight: FontWeight.bold,
-                          //               fontSize: 16),
-                          //         ),
-                          //         Text(posts.destinationlocation!.split(',')[1]),
-                          //       ],
-                          //     )
-                          //   ],
-                          // ),
                           const Divider(),
                           Row(
                             children: [
@@ -245,59 +243,69 @@ class _CompletedOrdersState extends State<CompletedOrders> {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  const Text("Original Amount ",
-                                      style: TextStyle(fontSize: 18)),
+                                  const Text("Original Amount",
+                                      style: TextStyle()),
                                   const SizedBox(
-                                    height: 5,
+                                    height: 8,
                                   ),
                                   Row(
                                     children: [
                                       Image.asset(
                                         'assets/images/rupee-indian.png',
-                                        height: 20,
-                                        width: 20,
+                                        height: 16,
+                                        width: 16,
                                       ),
                                       Text(posts.expectedprice!,
                                           style:
-                                              GoogleFonts.lato(fontSize: 30)),
+                                              GoogleFonts.lato(fontSize: 18)),
+                                      const SizedBox(
+                                        width: 5,
+                                      ),
+                                      Text(
+                                          posts.priceunit == 'tonne'
+                                              ? "per ${posts.priceunit}"
+                                              : posts.priceunit!,
+                                          style: const TextStyle(fontSize: 17)),
                                     ],
                                   ),
-                                  Text(
-                                      posts.priceunit == 'tonne'
-                                          ? "per ${posts.priceunit}"
-                                          : posts.priceunit!,
-                                      style: const TextStyle(fontSize: 18)),
                                 ],
                               ),
                               Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  const Text("Bid Amount",
-                                      style: TextStyle(fontSize: 18)),
+                                  const Text(
+                                    "Bidding Amount",
+                                    style: TextStyle(),
+                                  ),
                                   const SizedBox(
-                                    height: 5,
+                                    height: 8,
                                   ),
                                   Row(
                                     children: [
                                       Image.asset(
                                         'assets/images/rupee-indian.png',
-                                        height: 20,
-                                        width: 20,
+                                        height: 16,
+                                        width: 16,
                                       ),
                                       Text(bidpost.rate!,
                                           style:
-                                              GoogleFonts.lato(fontSize: 30)),
+                                              GoogleFonts.lato(fontSize: 18)),
+                                      const SizedBox(
+                                        width: 5,
+                                      ),
+                                      Text(
+                                          posts.priceunit == 'tonne'
+                                              ? "per ${posts.priceunit}"
+                                              : posts.priceunit!,
+                                          style: const TextStyle(fontSize: 17)),
                                     ],
                                   ),
-                                  Text(
-                                      posts.priceunit == 'tonne'
-                                          ? "per ${posts.priceunit}"
-                                          : posts.priceunit!,
-                                      style: const TextStyle(fontSize: 18)),
                                 ],
                               )
                             ],
-                          )
+                          ),
                         ],
                       ),
                     ),
@@ -316,20 +324,32 @@ class _CompletedOrdersState extends State<CompletedOrders> {
                                     child: Flexible(
                                   child: Row(
                                     children: [
-                                      users.photourl!.isNotEmpty
-                                          ? CircleAvatar(
-                                              radius: 20,
-                                              backgroundColor:
-                                                  const Color(0xff4D4D4D),
-                                              backgroundImage:
-                                                  CachedNetworkImageProvider(
-                                                      users.photourl ?? ""),
-                                            )
-                                          : const CircleAvatar(
-                                              radius: 20.0,
-                                              backgroundColor:
-                                                  Color(0xff4D4D4D),
-                                            ),
+                                      ClipRRect(
+                                        borderRadius: BorderRadius.all(
+                                            Radius.circular(100.0)),
+                                        child: CachedNetworkImage(
+                                            height: 50,
+                                            width: 50,
+                                            imageUrl: users.photourl.toString(),
+                                            placeholder: (context, url) =>
+                                                Transform.scale(
+                                                  scale: 0.4,
+                                                  child:
+                                                      CircularProgressIndicator(
+                                                    color:
+                                                        Constants.kYellowColor,
+                                                    strokeWidth: 3,
+                                                  ),
+                                                ),
+                                            errorWidget: (context, url,
+                                                    error) =>
+                                                Container(
+                                                    height: 40,
+                                                    width: 40,
+                                                    child: Image.asset(
+                                                        'assets/images/account_profile.png')),
+                                            fit: BoxFit.cover),
+                                      ),
                                       const SizedBox(
                                         width: 10,
                                       ),
@@ -366,6 +386,158 @@ class _CompletedOrdersState extends State<CompletedOrders> {
                   ],
                 )),
           );
+        });
+  }
+
+  fetchcompletedata(BidModal bidpost) async {
+    await bidRef.doc(bidpost.id).collection('bidcomplete').get().then((value) {
+      getcompletebid = value.docs;
+      getcompletebid.forEach((element) {
+        setState(() {
+          print(element['id']);
+        });
+      });
+    });
+  }
+
+  List getcompletebid = [];
+  _viewcompleted(BidModal bidpost) {
+    showModalBottomSheet(
+        context: context,
+        shape: const RoundedRectangleBorder(
+          // <-- SEE HERE
+          borderRadius: BorderRadius.vertical(
+            top: Radius.circular(25.0),
+          ),
+        ),
+        builder: (context) {
+          return Container(
+              // height: 300,
+              decoration: const BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(25),
+                      topRight: Radius.circular(25))),
+              child: ListView.builder(
+                  shrinkWrap: true,
+                  itemCount: getcompletebid.length,
+                  itemBuilder: (context, index) {
+                    return Padding(
+                      padding: const EdgeInsets.only(top: 20, left: 15),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Text(
+                            "Bid completed time:",
+                            style: TextStyle(
+                                fontWeight: FontWeight.w300, fontSize: 16),
+                          ),
+                          const SizedBox(
+                            height: 10,
+                          ),
+                          Text(
+                            getcompletebid[index]['bidcompletedtime'],
+                            style: const TextStyle(
+                                fontWeight: FontWeight.w500, fontSize: 19),
+                          ),
+                          const SizedBox(
+                            height: 15,
+                          ),
+                          const Text(
+                            'Bid Remarks:',
+                            style: TextStyle(
+                                fontWeight: FontWeight.w300, fontSize: 16),
+                          ),
+                          const SizedBox(
+                            height: 10,
+                          ),
+                          Text(
+                            getcompletebid[index]['bidcompletedmsg'],
+                            style: const TextStyle(
+                                fontWeight: FontWeight.w500, fontSize: 17),
+                          ),
+                          const SizedBox(
+                            height: 15,
+                          ),
+                          const Text(
+                            "Proof",
+                            style: TextStyle(
+                                fontWeight: FontWeight.w300, fontSize: 16),
+                          ),
+                          const SizedBox(
+                            height: 10,
+                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children: [
+                              Container(
+                                height: 100,
+                                width: 130,
+                                child: Image.network(
+                                  getcompletebid[index]['proofimg1'].toString(),
+                                  fit: BoxFit.fill,
+                                ),
+                              ),
+                              Container(
+                                height: 100,
+                                width: 130,
+                                child: Image.network(
+                                  getcompletebid[index]['proofimg2'].toString(),
+                                  fit: BoxFit.fill,
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(
+                            height: 20,
+                          ),
+                          bidpost.postuserfeedback == ''
+                              ? Row(
+                                  children: [
+                                    Expanded(
+                                        child: Container(
+                                      height: 45,
+                                      child: ElevatedButton.icon(
+                                          style: ElevatedButton.styleFrom(
+                                              primary: Constants.thaartheme),
+                                          onPressed: () async {
+                                            await bidRef
+                                                .doc(bidpost.id)
+                                                .update({
+                                              'postuserfeedback': "Agree"
+                                            }).then((value) {
+                                              EasyLoading.showToast(
+                                                  'Thanks for sharing your feedback');
+                                              Navigator.pop(context);
+                                            });
+                                          },
+                                          icon: const Icon(Icons.thumb_up),
+                                          label: const Text("Agree")),
+                                    )),
+                                    const SizedBox(
+                                      width: 15,
+                                    ),
+                                    Expanded(
+                                        child: Container(
+                                      height: 45,
+                                      child: ElevatedButton.icon(
+                                          style: ElevatedButton.styleFrom(
+                                              primary: Constants.alert),
+                                          onPressed: () async {
+                                            // await disagreesheet(context);
+                                            // Navigator.pop(context);
+                                          },
+                                          icon: const Icon(Icons.thumb_down),
+                                          label: const Text("DisAgree")),
+                                    ))
+                                  ],
+                                )
+                              : Container()
+                        ],
+                      ),
+                    );
+                  }));
         });
   }
 }

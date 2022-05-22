@@ -9,6 +9,7 @@ class CurrentUserProvider extends ChangeNotifier {
   String photourl = '';
   String usertype = '';
   String usernumber = '';
+  String kycmsg = '';
 
   List bidAceptdocs = [];
 
@@ -21,6 +22,7 @@ class CurrentUserProvider extends ChangeNotifier {
       photourl = value.get('photourl');
       usertype = value.get('usertype');
       usernumber = value.get('usernumber');
+      kycmsg = value.get('kycmsg');
       notifyListeners();
     });
   }
@@ -51,4 +53,42 @@ class CurrentUserProvider extends ChangeNotifier {
       });
     });
   }
+
+  fetchacceptbid(PostModal posts) async {
+    await bidRef
+        .where('loadid', isEqualTo: posts.postid)
+        .where('loadpostid', isEqualTo: UserService().currentUid())
+        .where('bidresponse', isEqualTo: "Bid Accepted")
+        .get()
+        .then((value) {
+      biddocforsee = value.docs;
+      biddoc.forEach((element) {
+        print(element['bidresponse']);
+        bidacceptedforsee = element['bidresponse'];
+        notifyListeners();
+      });
+    });
+  }
+
+  fetchcompletebid(PostModal posts) async {
+    await bidRef
+        .where('loadid', isEqualTo: posts.postid)
+        .where('loadpostid', isEqualTo: UserService().currentUid())
+        .where('bidresponse', isEqualTo: "Bid Completed")
+        .get()
+        .then((value) {
+      bidcomdoc = value.docs;
+      bidcomdoc.forEach((element) {
+        print(element['bidresponse']);
+        bidcomplete = element['bidresponse'];
+        notifyListeners();
+      });
+    });
+  }
+
+  List biddocforsee = [];
+  String bidacceptedforsee = '';
+
+  List bidcomdoc = [];
+  String bidcomplete = '';
 }

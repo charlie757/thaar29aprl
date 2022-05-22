@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_scroll_to_top/flutter_scroll_to_top.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:overlay_support/overlay_support.dart';
 import 'package:provider/provider.dart';
 import 'package:thaartransport/NEW/postloaduser/loaddata.dart';
@@ -58,9 +59,7 @@ class _MarketLoadState extends State<MarketLoad> {
         body: TabBarView(children: [
           StreamBuilder<QuerySnapshot>(
               stream: postRef
-                  .where('ownerId', isNotEqualTo: UserService().currentUid())
                   .where('loadstatus', isEqualTo: 'Active')
-                  .orderBy('ownerId')
                   .orderBy('posttime', descending: true)
                   .snapshots(),
               builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
@@ -70,10 +69,10 @@ class _MarketLoadState extends State<MarketLoad> {
                     ConnectionState.waiting) {
                   return FlickerWidget();
                 } else if (snapshot.data!.docs.isEmpty) {
-                  return const Center(
+                  return Center(
                     child: Text(
                       "No loads in market",
-                      style: TextStyle(fontSize: 20),
+                      style: GoogleFonts.ibmPlexSerif(fontSize: 18),
                     ),
                   );
                 } else if (snapshot.hasData) {
@@ -83,27 +82,31 @@ class _MarketLoadState extends State<MarketLoad> {
                           scrollController: scrollController,
                           scrollToTopCurve: Curves.easeInOut,
                           promptAlignment: Alignment.bottomRight,
-                          child: ListView(
-                            controller: scrollController,
-                            shrinkWrap: true,
-                            children: [
-                              ListView.builder(
-                                  shrinkWrap: true,
-                                  padding: EdgeInsets.all(0),
-                                  physics: ScrollPhysics(),
-                                  scrollDirection: Axis.vertical,
-                                  itemCount: snapshot.data!.docs.length,
-                                  itemBuilder: (context, int index) {
-                                    PostModal posts = PostModal.fromJson(
-                                        snapshot.data!.docs[index].data()
-                                            as Map<String, dynamic>);
+                          child: RefreshIndicator(
+                            color: Colors.white,
+                            backgroundColor: Constants.kYellowColor,
+                            triggerMode: RefreshIndicatorTriggerMode.anywhere,
+                            onRefresh: () async {
+                              Future.delayed(const Duration(seconds: 5));
+                              setState(() {});
+                            },
+                            child: ListView.builder(
+                                shrinkWrap: true,
+                                controller: scrollController,
+                                padding: EdgeInsets.all(0),
+                                physics: ScrollPhysics(),
+                                scrollDirection: Axis.vertical,
+                                itemCount: snapshot.data!.docs.length,
+                                itemBuilder: (context, int index) {
+                                  PostModal posts = PostModal.fromJson(
+                                      snapshot.data!.docs[index].data()
+                                          as Map<String, dynamic>);
 
-                                    return LoadData(
-                                      posts: posts,
-                                      // users: users,
-                                    );
-                                  }),
-                            ],
+                                  return LoadData(
+                                    posts: posts,
+                                    // users: users,
+                                  );
+                                }),
                           ));
                 }
                 return circularProgress(context);

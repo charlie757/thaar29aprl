@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:loading_overlay/loading_overlay.dart';
 import 'package:thaartransport/screens/kyc/aadhaar/aadhaarkyc.dart';
@@ -73,12 +74,15 @@ class _KycDocumentsState extends State<KycDocuments> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             const Text("Enter your PAN number ",
-                                style: TextStyle(fontWeight: FontWeight.bold)),
+                                style: TextStyle(
+                                    fontWeight: FontWeight.bold, fontSize: 17)),
                             const SizedBox(
                               height: 28,
                             ),
                             TextFormField(
                               controller: PANumber,
+                              autovalidateMode:
+                                  AutovalidateMode.onUserInteraction,
                               textCapitalization: TextCapitalization.characters,
                               decoration: InputDecoration(
                                 hintText: "PAN Number",
@@ -107,11 +111,11 @@ class _KycDocumentsState extends State<KycDocuments> {
                                     const Text(
                                       "Photo and PAN number shouble be clear",
                                       style: TextStyle(
-                                          fontSize: 12,
+                                          fontSize: 15,
                                           fontWeight: FontWeight.bold),
                                     ),
                                     const SizedBox(
-                                      height: 10,
+                                      height: 15,
                                     ),
                                     FrontImage(),
 
@@ -137,17 +141,14 @@ class _KycDocumentsState extends State<KycDocuments> {
                                             validate = true;
                                           } else if (imgUrl1.isEmpty &&
                                               imgUrl2.isEmpty) {
-                                            Fluttertoast.showToast(
-                                                msg:
-                                                    'Please select the both image');
+                                            EasyLoading.showToast(
+                                                'Please upload both image');
                                           } else if (imgUrl1.isEmpty) {
-                                            Fluttertoast.showToast(
-                                                msg:
-                                                    'Please select the fornt image');
+                                            EasyLoading.showToast(
+                                                'Please upload fornt image');
                                           } else if (imgUrl2.isEmpty) {
-                                            Fluttertoast.showToast(
-                                                msg:
-                                                    'Please select the back image');
+                                            EasyLoading.showToast(
+                                                'Please upload back image');
                                           } else {
                                             if (mounted) {
                                               setState(() {

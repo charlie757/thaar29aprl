@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:loading_overlay/loading_overlay.dart';
 import 'package:thaartransport/screens/kyc/aadhaar/aadhaarimage.dart';
@@ -93,6 +94,8 @@ class _AadhaarKycState extends State<AadhaarKyc> {
                               height: 28,
                             ),
                             TextFormField(
+                              autovalidateMode:
+                                  AutovalidateMode.onUserInteraction,
                               inputFormatters: [
                                 FilteringTextInputFormatter.digitsOnly,
                                 LengthLimitingTextInputFormatter(12),
@@ -149,17 +152,14 @@ class _AadhaarKycState extends State<AadhaarKyc> {
                                           validate = true;
                                         } else if (AadhaarFront.isEmpty &&
                                             AadhaarBack.isEmpty) {
-                                          Fluttertoast.showToast(
-                                              msg:
-                                                  'Please select the both image');
+                                          EasyLoading.showToast(
+                                              'Please upload both image');
                                         } else if (AadhaarFront.isEmpty) {
-                                          Fluttertoast.showToast(
-                                              msg:
-                                                  'Please select the fornt image');
+                                          EasyLoading.showToast(
+                                              'Please upload fornt image');
                                         } else if (AadhaarBack.isEmpty) {
-                                          Fluttertoast.showToast(
-                                              msg:
-                                                  'Please select the back image');
+                                          EasyLoading.showToast(
+                                              'Please upload back image');
                                         } else {
                                           if (mounted) {
                                             setState(() {

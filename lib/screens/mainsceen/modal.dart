@@ -25,7 +25,7 @@ final slideList = [
     imageUrl: 'assets/images/truck_2.png',
     title: 'Book loads',
     description:
-        'Are you transporator or truck owner and looking for loads??\n Go with this app, book loads with the best price.',
+        'Are you looking for loads?\n Go with this app, book loads with the best price.',
   ),
   Slide(
     imageUrl: 'assets/images/truck_3.png',

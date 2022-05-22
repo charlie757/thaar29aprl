@@ -35,11 +35,6 @@ class _MyBidOrderState extends State<MyBidOrder> {
 
   AppBar appBar() {
     return AppBar(
-      // automaticallyImplyLeading: false,
-      // leading: Icon(
-      //   Icons.arrow_back,
-      //   color: Colors.white,
-      // ),
       toolbarHeight: 25,
       backgroundColor: Color(0XFF142438),
       bottom: TabBar(

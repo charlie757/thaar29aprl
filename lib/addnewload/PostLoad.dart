@@ -1,11 +1,14 @@
 // ignore: file_names
 // ignore_for_file: file_names, prefer_const_constructors, unused_field
+import 'dart:ui';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cool_alert/cool_alert.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:jiffy/jiffy.dart';
 import 'package:overlay_support/overlay_support.dart';
 import 'package:provider/provider.dart';
@@ -57,6 +60,18 @@ class _PostLoadState extends State<PostLoad> {
     fetchlocationData();
   }
 
+  clearController() {
+    postMATcont.clear();
+    postQUTcont.clear();
+    postPricecont.clear();
+    postexpectedcont.clear();
+    postpmtmodecont.clear();
+    expireLoad.clear();
+    postSLcont.clear();
+    postadvancecont.clear();
+    postDLcont.clear();
+  }
+
   @override
   Widget build(BuildContext context) {
     final isOnline = Provider.of<ConnectivityProvider>(context).isOnline;
@@ -70,14 +85,7 @@ class _PostLoadState extends State<PostLoad> {
           onWillPop: () async {
             Navigator.push(
                 context, MaterialPageRoute(builder: (context) => HomePage()));
-            postMATcont.clear();
-            postQUTcont.clear();
-            postPricecont.clear();
-            postexpectedcont.clear();
-            postpmtmodecont.clear();
-            expireLoad.clear();
-            postSLcont.clear();
-            postDLcont.clear();
+            clearController();
             return true;
           },
           child: Container(
@@ -98,6 +106,13 @@ class _PostLoadState extends State<PostLoad> {
 
   AppBar appBar() {
     return AppBar(
+      leading: InkWell(
+        onTap: () {
+          Navigator.pop(context);
+          clearController();
+        },
+        child: Icon(Icons.keyboard_backspace_rounded),
+      ),
       backgroundColor: Constants.btntextactive,
       title: const Text("Post Load"),
       centerTitle: false,
@@ -394,6 +409,7 @@ class _PostLoadState extends State<PostLoad> {
                           'loadorderstatus': 'Active',
                         }).catchError((e) {
                           print(e);
+                          showInSnackBar('Somthing wrong!', context);
                         });
 
                         await CoolAlert.show(
@@ -410,10 +426,11 @@ class _PostLoadState extends State<PostLoad> {
                             MaterialPageRoute(
                                 builder: (context) =>
                                     OrderPostConfirmed(ref.id)));
+                        showInSnackBar('Uploaded successfully!', context);
+                        clearController();
                       } catch (e) {
                         print(e);
 
-                        showInSnackBar('Uploaded successfully!', context);
                         setState(() {
                           loading = false;
                         });
@@ -474,26 +491,48 @@ class _PostLoadState extends State<PostLoad> {
             child: Container(
                 height: 3.0, width: 40.0, color: const Color(0xFF32335C))),
         const SizedBox(
-          height: 30,
+          height: 20,
         ),
         Container(
-            margin: EdgeInsets.only(left: 15),
-            child: const Text("Select your price Unit",
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                ))),
+            margin: EdgeInsets.only(left: 15, right: 15),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  "Select your price Unit",
+                  style: GoogleFonts.ibmPlexSerif(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                InkWell(
+                    onTap: () {
+                      Navigator.pop(context);
+                    },
+                    child: Icon(Icons.close))
+              ],
+            )),
+        SizedBox(
+          height: 15,
+        ),
         RadioListTile(
-          title: Text("Fixed price"),
+          title: Text(
+            "Fixed price",
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
+          ),
           value: 'fixed price',
           groupValue: group,
           onChanged: (value) {
             group = value as String;
-            Navigator.pop(context);
             postPricecont.text = value;
+            Navigator.pop(context);
           },
         ),
         RadioListTile(
-          title: Text("Tonne"),
+          title: Text(
+            "Tonne",
+            style: TextStyle(fontWeight: FontWeight.w500, fontSize: 18),
+          ),
           value: 'tonne',
           groupValue: group,
           onChanged: (value) {
@@ -501,6 +540,9 @@ class _PostLoadState extends State<PostLoad> {
             postPricecont.text = value;
             Navigator.pop(context);
           },
+        ),
+        SizedBox(
+          height: 30,
         )
       ],
     );
@@ -516,7 +558,7 @@ class _PostLoadState extends State<PostLoad> {
                   bottom: MediaQuery.of(context).viewInsets.bottom),
               child: Container(
                 color: Color(0xFF737373),
-                height: 300,
+                // height: 300,
                 child: Container(
                   child: _buildSheet(),
                   decoration: BoxDecoration(
@@ -544,18 +586,41 @@ class _PostLoadState extends State<PostLoad> {
               child: Container(
                   height: 3.0, width: 40.0, color: const Color(0xFF32335C))),
           const SizedBox(
-            height: 30,
+            height: 15,
           ),
           Container(
-              margin: EdgeInsets.only(left: 15),
-              child: const Text("Select payment mode",
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                  ))),
+              margin: EdgeInsets.only(left: 15, right: 15),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    "Select payment mode",
+                    style: GoogleFonts.ibmPlexSerif(
+                      fontSize: 20,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  InkWell(
+                      onTap: () {
+                        Navigator.pop(context);
+                      },
+                      child: Icon(
+                        Icons.close,
+                        size: 25,
+                        color: Colors.black,
+                      ))
+                ],
+              )),
+          SizedBox(
+            height: 15,
+          ),
           RadioListTile(
-            title: Text("Advance pay"),
+            title: Text(
+              "Advance pay",
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
+            ),
             value: "Advance pay",
-            selected: _value,
+            // selected: _value,
             groupValue: val,
             toggleable: _value,
             onChanged: (value) {
@@ -578,13 +643,18 @@ class _PostLoadState extends State<PostLoad> {
               const SizedBox(
                 width: 10,
               ),
-              const Text('Enter Advance %(Optional)'),
+              const Text(
+                'Enter Advance %(Optional)',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w400),
+              ),
               const SizedBox(
                 width: 10,
               ),
               Flexible(
                   child: TextFormField(
+                keyboardType: TextInputType.number,
                 controller: postadvancecont,
+                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                 readOnly: _value ? false : true,
                 decoration: InputDecoration(
                     contentPadding: EdgeInsets.all(12),
@@ -602,11 +672,17 @@ class _PostLoadState extends State<PostLoad> {
               ),
             ],
           ),
+          SizedBox(
+            height: 15,
+          ),
           RadioListTile(
-            title: Text("ToPay"),
+            title: Text(
+              "ToPay",
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
+            ),
             value: "ToPay",
             groupValue: val,
-            selected: _value,
+            // selected: _value,
             toggleable: _value,
             onChanged: (value) {
               setState(() {
@@ -622,31 +698,41 @@ class _PostLoadState extends State<PostLoad> {
               // Navigator.pop(context);
             },
           ),
-          RaisedButton(
-              color: Constants.btnBG,
-              textColor: Constants.white,
-              onPressed: () {
-                if (val == "Advance pay" && postadvancecont.text.isEmpty) {
-                  Fluttertoast.showToast(
-                      msg: "Advance pay should not be blank");
-                } else if (val == "Advance pay" &&
-                    postadvancecont.text.isNotEmpty) {
-                  postpmtmodecont.text =
-                      "${postadvancecont.text}% " + val.toString();
-                  Navigator.pop(context);
-                } else {
-                  postpmtmodecont.text = val.toString();
-                  Navigator.pop(context);
-                }
-              },
-              child: Container(
-                height: 45,
-                alignment: Alignment.center,
-                width: MediaQuery.of(context).size.width,
-                child: Text(
-                  "Next",
-                ),
-              ))
+          SizedBox(
+            height: 20,
+          ),
+          Padding(
+            padding: const EdgeInsets.only(left: 8, right: 8),
+            child: RaisedButton(
+                color: Constants.thaartheme,
+                textColor: Constants.white,
+                onPressed: () {
+                  if (val == "Advance pay" && postadvancecont.text.isEmpty) {
+                    Fluttertoast.showToast(
+                        msg: "Advance pay should not be blank");
+                  } else if (val == "Advance pay" &&
+                      postadvancecont.text.isNotEmpty) {
+                    postpmtmodecont.text =
+                        "${postadvancecont.text}% " + val.toString();
+                    Navigator.pop(context);
+                  } else {
+                    postpmtmodecont.text = val.toString();
+                    Navigator.pop(context);
+                  }
+                },
+                child: Container(
+                  height: 45,
+                  alignment: Alignment.center,
+                  width: MediaQuery.of(context).size.width,
+                  child: Text(
+                    "Next",
+                    style: TextStyle(fontSize: 18),
+                  ),
+                )),
+          ),
+          SizedBox(
+            height: 30,
+          )
         ],
       );
     });

@@ -48,10 +48,15 @@ class _OfficeImageState extends State<OfficeImage> {
                   ),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
-                    children: const [
-                      Icon(Icons.camera_alt),
+                    children: [
+                      Image.asset(
+                        'assets/images/camera.png',
+                        height: 25,
+                        width: 25,
+                        color: Colors.black,
+                      ),
                       SizedBox(
-                        height: 5,
+                        height: 10,
                       ),
                       Text("UPLOAD")
                     ],
@@ -76,16 +81,32 @@ class _OfficeImageState extends State<OfficeImage> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     ListTile(
-                      leading: Icon(Icons.camera),
-                      title: Text("Camera"),
+                      leading: Image.asset(
+                        'assets/images/camera.png',
+                        height: 25,
+                        width: 25,
+                        color: Colors.black,
+                      ),
+                      title: Text(
+                        "Camera",
+                        style: TextStyle(
+                            fontWeight: FontWeight.w500, fontSize: 17),
+                      ),
                       onTap: () {
                         Navigator.pop(context);
                         _pickImage(ImageSource.camera);
                       },
                     ),
                     ListTile(
-                      leading: Icon(Icons.filter),
-                      title: Text("Pick a files"),
+                      leading: Icon(
+                        Icons.filter,
+                        color: Colors.black,
+                      ),
+                      title: Text(
+                        "Pick a files",
+                        style: TextStyle(
+                            fontWeight: FontWeight.w500, fontSize: 17),
+                      ),
                       onTap: () {
                         Navigator.pop(context);
                         _pickImage(ImageSource.gallery);

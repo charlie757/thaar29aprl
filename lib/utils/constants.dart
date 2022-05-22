@@ -9,7 +9,9 @@ class Constants {
   static String appName = "Thaar Transport";
 
   //Colors for theme
+  static Color kYellowColor = Color(0xFFEE4B23);
 
+  static Color klightYelloColor = Color(0xffFFF9EC);
   static Color maincolor = Color(0XFF142438);
   static Color thaartheme = Color(0xff183038);
   static Color trucktheme = Colors.red;

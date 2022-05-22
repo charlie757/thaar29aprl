@@ -17,3 +17,21 @@ Widget cachedNetworkImage(String imgUrl) {
     ),
   );
 }
+
+// export const setProductsToExpired = functions.
+// https.onRequest(async (request, response) => {
+//   const expiredProducts = await admin.firestore()
+//       .collection("orderuser")
+//       .where("id", "==", "XGKiGCT7vYe5wVLmOIlGVuLueNo2")
+//       .get();
+//   // const batch = admin.firestore().batch();
+//   expiredProducts.forEach((doc) => {
+//     const id = doc.get("id");
+//     admin.firestore().collection("orderuser").doc(id)
+//         .update( {"expired": "true"});
+//     console.log("userid"+doc.get("id"));
+//   });
+//   // await batch.commit();
+//   console.log("time11"+admin.firestore.FieldValue.serverTimestamp());
+//   response.send("200");
+// });

@@ -22,6 +22,8 @@ class TruckModal {
   String? truckstatus;
   List? routes;
   Timestamp? time;
+  String? alcapacity;
+  String? leftcapacity;
 
   TruckModal(
       {this.id,
@@ -35,7 +37,9 @@ class TruckModal {
       this.truckposttime,
       this.truckstatus,
       this.routes,
-      this.time});
+      this.time,
+      this.alcapacity,
+      this.leftcapacity});
 
   TruckModal.fromJson(Map<String, dynamic> json) {
     id = json['id'];
@@ -50,6 +54,8 @@ class TruckModal {
     truckstatus = json['truckstatus'];
     routes = json['routes'];
     time = json['time'];
+    alcapacity = json['alcapacity'];
+    leftcapacity = json['leftcapacity'];
   }
 
   Map<String, dynamic> toJson() {
@@ -66,6 +72,8 @@ class TruckModal {
     data['truckstatus'] = truckstatus;
     data['routes'] = routes;
     data['time'] = time;
+    data['alcapacity'] = alcapacity;
+    data['leftcapacity'] = leftcapacity;
     return data;
   }
 }

@@ -1,13 +1,17 @@
+import 'dart:math';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cool_alert/cool_alert.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:jiffy/jiffy.dart';
 import 'package:loading_overlay/loading_overlay.dart';
 import 'package:overlay_support/overlay_support.dart';
 import 'package:provider/provider.dart';
 import 'package:thaartransport/addtruck/addtruck.dart';
+import 'package:thaartransport/addtruck/textfield.dart';
 import 'package:thaartransport/modal/truckmodal.dart';
 import 'package:thaartransport/services/connectivity.dart';
 import 'package:thaartransport/utils/constants.dart';
@@ -34,6 +38,8 @@ class _RepostLorryState extends State<RepostLorry> {
   TextEditingController capacityController = TextEditingController();
   // To save expire time in dateTime Format use this controller and post expire time
   TextEditingController expiretime = TextEditingController();
+  TextEditingController alreadylodedController = TextEditingController();
+  TextEditingController leftloadController = TextEditingController();
 
   List<String> _selectedItems = [];
   void _showMultiSelect() async {
@@ -124,7 +130,7 @@ class _RepostLorryState extends State<RepostLorry> {
                             BorderSide(color: Constants.textfieldborder)),
                     focusedBorder: OutlineInputBorder(
                         borderSide: BorderSide(
-                      width: 1.5,
+                      width: 1,
                       color: Constants.textfieldborder,
                     )),
                   ),
@@ -165,7 +171,7 @@ class _RepostLorryState extends State<RepostLorry> {
                             BorderSide(color: Constants.textfieldborder)),
                     focusedBorder: OutlineInputBorder(
                         borderSide: BorderSide(
-                      width: 1.5,
+                      width: 1,
                       color: Constants.textfieldborder,
                     )),
                   ),
@@ -207,7 +213,7 @@ class _RepostLorryState extends State<RepostLorry> {
                             BorderSide(color: Constants.textfieldborder)),
                     focusedBorder: OutlineInputBorder(
                         borderSide: BorderSide(
-                      width: 1.5,
+                      width: 1,
                       color: Constants.textfieldborder,
                     )),
                     labelText: 'Lorry Number',
@@ -231,7 +237,7 @@ class _RepostLorryState extends State<RepostLorry> {
                               BorderSide(color: Constants.textfieldborder)),
                       focusedBorder: OutlineInputBorder(
                           borderSide: BorderSide(
-                        width: 1.5,
+                        width: 1,
                         color: Constants.textfieldborder,
                       )),
                       hintText: "In Tonne(S)",
@@ -248,6 +254,58 @@ class _RepostLorryState extends State<RepostLorry> {
               SizedBox(
                 height: height * 0.03,
               ),
+              textField(
+                alreadylodedController,
+                "In Tonne(S)",
+                'loaded capacity',
+                false,
+                TextCapitalization.none,
+                TextInputType.number,
+                [
+                  FilteringTextInputFormatter.digitsOnly,
+                ],
+                () {},
+                (val) {
+                  setState(() {
+                    final value = max(
+                        0,
+                        int.parse(capacityController.text) -
+                            int.parse(alreadylodedController.text));
+                    leftloadController.text = value.toString();
+                  });
+                },
+                (value) {
+                  if (value!.isEmpty || value == '') {
+                    return 'Please enter the Alredy loaded capacity';
+                  } else if (int.parse(value) > 100) {
+                    return 'Capacity more than 100 tonnes is not allowed';
+                  }
+                },
+              ),
+              SizedBox(
+                height: height * 0.03,
+              ),
+              textField(
+                  leftloadController,
+                  "In Tonne(S)",
+                  'Left Capacity',
+                  true,
+                  TextCapitalization.none,
+                  TextInputType.number,
+                  [
+                    FilteringTextInputFormatter.digitsOnly,
+                  ],
+                  () {},
+                  (val) {}, (value) {
+                if (value!.isEmpty || value == '') {
+                  return 'Please enter the Left Capacity';
+                } else if (int.parse(value) > 100) {
+                  return 'Capacity more than 100 tonnes is not allowed';
+                }
+              }),
+              SizedBox(
+                height: height * 0.03,
+              ),
               TextFormField(
                 readOnly: true,
                 onTap: () {
@@ -260,12 +318,12 @@ class _RepostLorryState extends State<RepostLorry> {
                             BorderSide(color: Constants.textfieldborder)),
                     focusedBorder: OutlineInputBorder(
                         borderSide: BorderSide(
-                      width: 1.5,
+                      width: 1,
                       color: Constants.textfieldborder,
                     )),
                     hintText: "Expire Truck",
                     labelText: 'Expire Truck',
-                    labelStyle: TextStyle(color: Colors.black),
+                    labelStyle: const TextStyle(color: Colors.black),
                     hintStyle: TextStyle(color: Colors.black26)),
                 validator: (value) {
                   if (value!.isEmpty) {
@@ -289,13 +347,16 @@ class _RepostLorryState extends State<RepostLorry> {
                     border: Border.all(color: Colors.black54),
                   ),
                   child: Text.rich(TextSpan(
-                      style: TextStyle(fontSize: 16),
-                      text: "Your routes ",
+                      style: const TextStyle(fontSize: 16),
+                      text: "Your routes  ",
                       children: [
                         TextSpan(
-                            style: const TextStyle(fontWeight: FontWeight.w600),
+                            style: const TextStyle(
+                                fontWeight: FontWeight.w600,
+                                color: Colors.green,
+                                fontSize: 17),
                             text: _selectedItems.isNotEmpty
-                                ? "(${_selectedItems.length})"
+                                ? "${_selectedItems.length}"
                                 : widget.truckModal.routes!.length.toString())
                       ])),
                 ),
@@ -400,6 +461,8 @@ class _RepostLorryState extends State<RepostLorry> {
           ? widget.truckModal.destinationlocation
           : destinationController.text,
       "expiretruck": expiretime.text,
+      "alcapacity": alreadylodedController.text,
+      "leftcapacity": leftloadController.text,
       "capacity": widget.truckModal.capacity!.isEmpty
           ? widget.truckModal.capacity
           : capacityController.text,
@@ -421,7 +484,11 @@ class _RepostLorryState extends State<RepostLorry> {
         style: TextStyle(fontSize: 15),
       )));
     });
-    await truckRef.doc(widget.truckModal.id).collection('changeslorry').add({
+    var changeslorry =
+        truckRef.doc(widget.truckModal.id).collection('changeslorry').doc();
+
+    await changeslorry.set({
+      "id": changeslorry.id,
       "lorrynumber": widget.truckModal.lorrynumber!.isEmpty
           ? widget.truckModal.lorrynumber
           : lorrynumber.text,
@@ -435,6 +502,8 @@ class _RepostLorryState extends State<RepostLorry> {
       "capacity": widget.truckModal.capacity!.isEmpty
           ? widget.truckModal.capacity
           : capacityController.text,
+      "alcapacity": alreadylodedController.text,
+      "leftcapacity": leftloadController.text,
       "truckposttime": Jiffy(DateTime.now()).yMMMMEEEEdjm,
       "routes":
           _selectedItems.isNotEmpty ? _selectedItems : widget.truckModal.routes
@@ -478,179 +547,175 @@ class _RepostLorryState extends State<RepostLorry> {
                     topLeft: Radius.circular(25),
                     topRight: Radius.circular(25))),
             child: StatefulBuilder(builder: (context, state) {
-              return SingleChildScrollView(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Container(
-                      margin: EdgeInsets.all(15),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            "Select your expiring time",
-                            style: TextStyle(
-                                fontWeight: FontWeight.w600, fontSize: 18),
-                          ),
-                          InkWell(
-                            onTap: () {
-                              Navigator.pop(context);
-                            },
-                            child: Icon(Icons.close_outlined),
-                          )
-                        ],
-                      ),
+              return Column(
+                // mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.only(top: 10),
+                    margin: const EdgeInsets.all(15),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text("Select your expiring time",
+                            style: GoogleFonts.ibmPlexSerif(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w500,
+                            )),
+                        InkWell(
+                          onTap: () {
+                            Navigator.pop(context);
+                          },
+                          child: Icon(Icons.close_outlined),
+                        )
+                      ],
                     ),
-                    RadioListTile(
-                        value:
-                            '01 hours ${Jiffy(DateTime.now().add(Duration(hours: 1))).yMMMMEEEEdjm}',
-                        title: Text("01 Hours"),
-                        subtitle: Text(
-                            Jiffy(DateTime.now().add(Duration(hours: 1)))
-                                .yMMMMEEEEdjm),
-                        groupValue: val,
-                        onChanged: (value) {
-                          state(() {});
-                          setState(() {
-                            val = value as String;
-                            expiretime.text = DateTime.now()
-                                .add(Duration(hours: 1))
-                                .toString();
-                            expireController.text = value;
-                          });
-                        }),
-                    RadioListTile(
-                        value:
-                            '02 hours ${Jiffy(DateTime.now().add(Duration(hours: 2))).yMMMMEEEEdjm}',
-                        title: Text("02 Hours"),
-                        subtitle: Text(
-                            Jiffy(DateTime.now().add(Duration(hours: 2)))
-                                .yMMMMEEEEdjm),
-                        groupValue: val,
-                        onChanged: (value) {
-                          state(() {});
-                          setState(() {
-                            val = value as String;
-                            expiretime.text = DateTime.now()
-                                .add(Duration(hours: 2))
-                                .toString();
-                            expireController.text = value;
-                          });
-                        }),
-                    RadioListTile(
-                        value:
-                            '03 hours ${Jiffy(DateTime.now().add(Duration(hours: 3))).yMMMMEEEEdjm}',
-                        title: Text("03 Hours"),
-                        subtitle: Text(
-                            Jiffy(DateTime.now().add(Duration(hours: 3)))
-                                .yMMMMEEEEdjm),
-                        groupValue: val,
-                        onChanged: (value) {
-                          state(() {});
-                          setState(() {
-                            val = value as String;
-                            expiretime.text = DateTime.now()
-                                .add(Duration(hours: 3))
-                                .toString();
-                            expireController.text = value;
-                          });
-                        }),
-                    RadioListTile(
-                        value:
-                            '06 hours ${Jiffy(DateTime.now().add(Duration(hours: 6))).yMMMMEEEEdjm}',
-                        title: Text("06 Hours"),
-                        subtitle: Text(
-                            Jiffy(DateTime.now().add(Duration(hours: 6)))
-                                .yMMMMEEEEdjm),
-                        groupValue: val,
-                        onChanged: (value) {
-                          state(() {});
-                          setState(() {
-                            val = value as String;
-                            expiretime.text = DateTime.now()
-                                .add(Duration(hours: 6))
-                                .toString();
-                            expireController.text = value;
-                          });
-                        }),
-                    RadioListTile(
-                        value:
-                            '12 hours ${Jiffy(DateTime.now().add(Duration(hours: 12))).yMMMMEEEEdjm}',
-                        title: Text("12 Hours"),
-                        subtitle: Text(
-                            Jiffy(DateTime.now().add(Duration(hours: 12)))
-                                .yMMMMEEEEdjm),
-                        groupValue: val,
-                        onChanged: (value) {
-                          state(() {});
-                          setState(() {
-                            val = value as String;
-                            expiretime.text = DateTime.now()
-                                .add(Duration(hours: 12))
-                                .toString();
+                  ),
+                  Expanded(
+                    child: Container(
+                      height: MediaQuery.of(context).size.height,
+                      child: SingleChildScrollView(
+                        child: Column(
+                          children: [
+                            RadioListTile(
+                                value:
+                                    '01 hours ${Jiffy(DateTime.now().add(Duration(hours: 1))).yMMMMEEEEdjm}',
+                                title: Text("01 Hours"),
+                                subtitle: Text(Jiffy(
+                                        DateTime.now().add(Duration(hours: 1)))
+                                    .yMMMMEEEEdjm),
+                                groupValue: val,
+                                onChanged: (value) {
+                                  state(() {});
+                                  setState(() {
+                                    val = value as String;
+                                    expiretime.text = DateTime.now()
+                                        .add(Duration(hours: 1))
+                                        .toString();
+                                    expireController.text = value;
+                                    Navigator.pop(context);
+                                  });
+                                }),
+                            RadioListTile(
+                                value:
+                                    '02 hours ${Jiffy(DateTime.now().add(Duration(hours: 2))).yMMMMEEEEdjm}',
+                                title: Text("02 Hours"),
+                                subtitle: Text(Jiffy(
+                                        DateTime.now().add(Duration(hours: 2)))
+                                    .yMMMMEEEEdjm),
+                                groupValue: val,
+                                onChanged: (value) {
+                                  state(() {});
+                                  setState(() {
+                                    val = value as String;
+                                    expiretime.text = DateTime.now()
+                                        .add(Duration(hours: 2))
+                                        .toString();
+                                    expireController.text = value;
+                                    Navigator.pop(context);
+                                  });
+                                }),
+                            RadioListTile(
+                                value:
+                                    '03 hours ${Jiffy(DateTime.now().add(Duration(hours: 3))).yMMMMEEEEdjm}',
+                                title: Text("03 Hours"),
+                                subtitle: Text(Jiffy(
+                                        DateTime.now().add(Duration(hours: 3)))
+                                    .yMMMMEEEEdjm),
+                                groupValue: val,
+                                onChanged: (value) {
+                                  state(() {});
+                                  setState(() {
+                                    val = value as String;
+                                    expiretime.text = DateTime.now()
+                                        .add(Duration(hours: 3))
+                                        .toString();
+                                    expireController.text = value;
+                                    Navigator.pop(context);
+                                  });
+                                }),
+                            RadioListTile(
+                                value:
+                                    '06 hours ${Jiffy(DateTime.now().add(Duration(hours: 6))).yMMMMEEEEdjm}',
+                                title: Text("06 Hours"),
+                                subtitle: Text(Jiffy(
+                                        DateTime.now().add(Duration(hours: 6)))
+                                    .yMMMMEEEEdjm),
+                                groupValue: val,
+                                onChanged: (value) {
+                                  state(() {});
+                                  setState(() {
+                                    val = value as String;
+                                    expiretime.text = DateTime.now()
+                                        .add(Duration(hours: 6))
+                                        .toString();
+                                    expireController.text = value;
+                                    Navigator.pop(context);
+                                  });
+                                }),
+                            RadioListTile(
+                                value:
+                                    '12 hours ${Jiffy(DateTime.now().add(Duration(hours: 12))).yMMMMEEEEdjm}',
+                                title: Text("12 Hours"),
+                                subtitle: Text(Jiffy(
+                                        DateTime.now().add(Duration(hours: 12)))
+                                    .yMMMMEEEEdjm),
+                                groupValue: val,
+                                onChanged: (value) {
+                                  state(() {});
+                                  setState(() {
+                                    val = value as String;
+                                    expiretime.text = DateTime.now()
+                                        .add(Duration(hours: 12))
+                                        .toString();
 
-                            expireController.text = value;
-                          });
-                        }),
-                    RadioListTile(
-                        value:
-                            '24 hours ${Jiffy(DateTime.now().add(const Duration(hours: 24))).yMMMMEEEEdjm}',
-                        title: const Text("24 Hours"),
-                        subtitle: Text(
-                            Jiffy(DateTime.now().add(const Duration(hours: 24)))
-                                .yMMMMEEEEdjm),
-                        groupValue: val,
-                        onChanged: (value) {
-                          state(() {});
-                          setState(() {
-                            val = value as String;
-                            expiretime.text = DateTime.now()
-                                .add(const Duration(hours: 24))
-                                .toString();
-                            expireController.text = value;
-                          });
-                        }),
-                    RadioListTile(
-                        value:
-                            '48 hours ${Jiffy(DateTime.now().add(const Duration(hours: 48))).yMMMMEEEEdjm}',
-                        title: const Text("48 Hours"),
-                        subtitle: Text(
-                            Jiffy(DateTime.now().add(const Duration(hours: 48)))
-                                .yMMMMEEEEdjm),
-                        groupValue: val,
-                        onChanged: (value) {
-                          state(() {});
-                          setState(() {
-                            val = value as String;
-                            expiretime.text = DateTime.now()
-                                .add(const Duration(hours: 48))
-                                .toString();
-                            expireController.text = value;
-                          });
-                        }),
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: RaisedButton(
-                        color: Constants.btnBG,
-                        textColor: Colors.white,
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8)),
-                        onPressed: () {
-                          Navigator.pop(context);
-                        },
-                        child: Container(
-                          alignment: Alignment.center,
-                          width: MediaQuery.of(context).size.width,
-                          height: 45,
-                          child: const Text(
-                            "SUBMIT",
-                            style: TextStyle(fontSize: 16),
-                          ),
+                                    expireController.text = value;
+                                    Navigator.pop(context);
+                                  });
+                                }),
+                            RadioListTile(
+                                value:
+                                    '24 hours ${Jiffy(DateTime.now().add(const Duration(hours: 24))).yMMMMEEEEdjm}',
+                                title: const Text("24 Hours"),
+                                subtitle: Text(Jiffy(DateTime.now()
+                                        .add(const Duration(hours: 24)))
+                                    .yMMMMEEEEdjm),
+                                groupValue: val,
+                                onChanged: (value) {
+                                  state(() {});
+                                  setState(() {
+                                    val = value as String;
+                                    expiretime.text = DateTime.now()
+                                        .add(const Duration(hours: 24))
+                                        .toString();
+                                    expireController.text = value;
+                                    Navigator.pop(context);
+                                  });
+                                }),
+                            RadioListTile(
+                                value:
+                                    '48 hours ${Jiffy(DateTime.now().add(const Duration(hours: 48))).yMMMMEEEEdjm}',
+                                title: const Text("48 Hours"),
+                                subtitle: Text(Jiffy(DateTime.now()
+                                        .add(const Duration(hours: 48)))
+                                    .yMMMMEEEEdjm),
+                                groupValue: val,
+                                onChanged: (value) {
+                                  state(() {});
+                                  setState(() {
+                                    val = value as String;
+                                    expiretime.text = DateTime.now()
+                                        .add(const Duration(hours: 48))
+                                        .toString();
+                                    expireController.text = value;
+                                    Navigator.pop(context);
+                                  });
+                                }),
+                          ],
                         ),
                       ),
-                    )
-                  ],
-                ),
+                    ),
+                  ),
+                ],
               );
             }),
           );

@@ -97,7 +97,7 @@ class _AllReceivedBidsState extends State<AllReceivedBids> {
                 child: FlatButton(
                     color: Colors.grey,
                     textColor: Colors.white,
-                    onPressed: () {
+                    onPressed: () async {
                       _onSeeAll();
                     },
                     child: Container(
@@ -116,6 +116,7 @@ class _AllReceivedBidsState extends State<AllReceivedBids> {
   _onSeeAll() {
     showModalBottomSheet(
         isScrollControlled: true,
+        useRootNavigator: true,
         context: context,
         builder: (context) {
           return Padding(
@@ -137,7 +138,12 @@ class _AllReceivedBidsState extends State<AllReceivedBids> {
                   ),
                 ),
               ));
-        });
+        }).then((value) {
+      setState(() {
+        fetchacceptbid();
+        fetchcompletebid();
+      });
+    });
   }
 
   // Widget _buildSeeAllSheet() {
